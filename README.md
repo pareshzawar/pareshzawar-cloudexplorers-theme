@@ -55,8 +55,8 @@ second was never styled, so it did nothing).
 [GoatCounter](https://www.goatcounter.com) is free for personal/non-commercial sites, open source,
 uses no cookies (so no consent banner) and adds a ~3.5 KB script.
 
-1. Sign up at goatcounter.com and pick a code, e.g. `cloudexplorers` → `cloudexplorers.goatcounter.com`.
-2. Ghost Admin → *Design → Customize → Site-wide → Goatcounter code* → enter just the code.
+1. The theme defaults to the `cloudexplorers` code (`cloudexplorers.goatcounter.com`).
+2. To change it: Ghost Admin → *Design → Customize → Site-wide → Goatcounter code* → enter just the code.
 3. Visits show up in your GoatCounter dashboard. Ghost Admin previews aren't counted (they run in a
    frame). To stop counting your own visits, open `https://cloudexplorers.club/#toggle-goatcounter`
    once in each browser you use.

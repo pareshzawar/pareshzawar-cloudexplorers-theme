@@ -101,7 +101,8 @@
             },
             "goatcounter_code": {
                 "type": "text",
-                "description": "Your GoatCounter code (the “xyz” in xyz.goatcounter.com). Leave empty to disable analytics"
+                "description": "Your GoatCounter code (the “xyz” in xyz.goatcounter.com). Leave empty to disable analytics",
+                "default": "cloudexplorers"
             },
             "navigation_layout": {
                 "type": "select",
