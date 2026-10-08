@@ -26,6 +26,7 @@ default.hbs (and the "color_theme" options in package.json).
 /* :root[data-theme] (two-part selector) on purpose: it outranks Source's
    ":root.has-light-text" and Ghost's injected ":root { --ghost-accent-color }". */
 :root[data-theme="terminal"] {
+    color-scheme: dark;                /* native scrollbars/controls drawn dark */
     --ce-accent: #00c8a0;              /* teal: links, prompts, highlights */
     --ce-accent-hover: #00e5b8;
     --ce-burgundy: #b01e3a;            /* hover fills */
@@ -60,6 +61,7 @@ default.hbs (and the "color_theme" options in package.json).
 }
 
 :root[data-theme="light"] {
+    color-scheme: light;
     --ce-accent: #00806a;              /* darker teal so it passes contrast on white */
     --ce-accent-hover: #006b59;
     --ce-burgundy: #b01e3a;
@@ -651,6 +653,39 @@ body.home-template {
     background: var(--ce-glow-low);
     border-left: 3px solid var(--ce-accent);
     border-radius: 0 8px 8px 0;
+}
+
+/* Tables
+   Source forces a permanent scrollbar under every table; only show one when it scrolls.
+   Colours are forced (!important beats inline styles) because tables pasted as HTML
+   often carry colours picked for the old white pane, which vanish on the dark one. */
+.gh-content .gh-table {
+    overflow-x: auto;
+    scrollbar-color: var(--ce-reading-rule) transparent;
+}
+
+.gh-content table {
+    min-width: 100%;
+}
+
+.gh-content :is(th, td) {
+    color: var(--ce-reading-text) !important;
+    background-color: transparent !important;
+    border-color: var(--ce-reading-rule) !important;
+}
+
+.gh-content th {
+    color: var(--ce-reading-heading) !important;
+    background-color: var(--ce-reading-wash) !important;
+}
+
+/* Inline-coloured text inside cells (e.g. <span style="color:…">) follows the cell */
+.gh-content :is(th, td) :not(a) {
+    color: inherit !important;
+}
+
+.gh-content :is(th, td) a {
+    color: var(--ce-reading-link) !important;
 }
 
 .gh-content pre {
