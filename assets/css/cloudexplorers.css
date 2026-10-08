@@ -579,7 +579,7 @@ body.home-template {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: 32px;
-    max-width: 1160px;
+    max-width: 1300px; /* pane (~980px) + gap + TOC (260px) */
     margin: 0 auto;
     padding: 0 var(--container-gap);
 }
@@ -589,13 +589,19 @@ body.home-template {
 }
 
 /* The reading pane (posts and every page).
-   18px text, 1.7 line height and a 680px column (~70 characters per line)
-   are the comfortable range for long technical reads. */
+   Text: 18px, line height 1.7, 680px column (~80 characters per line in Inter;
+   wider than that and eyes lose their place going back to the next line).
+   Code, tables and images use Source's "wide" column, up to 880px
+   (--container-width), so long commands rarely need sideways scrolling.
+   Side spacing comes only from Source's own grid gutter (--container-gap),
+   so the pane has no horizontal padding of its own. */
 .ce-post-layout .gh-content,
 .page-template .gh-content {
     --content-font-size: 1.8rem;
     --content-width: 680px;
-    padding: 40px;
+    --container-width: 880px;
+    --container-gap: 40px;
+    padding: 40px 0;
     background: var(--ce-reading-bg);
     color: var(--ce-reading-text);
     border: 1px solid var(--ce-reading-border);
@@ -606,8 +612,13 @@ body.home-template {
 
 /* Pages have no TOC wrapper, so centre the pane as its own column */
 .page-template .gh-content {
-    width: min(860px, 100% - 32px);
+    width: min(960px, 100% - 32px);
     margin-inline: auto;
+}
+
+/* Code blocks, tables and normal-width images break out into the wider column */
+:is(.ce-post-layout, .page-template) .gh-content > :where(pre, .kg-code-card, .gh-table, table, .kg-image-card:not(.kg-width-wide, .kg-width-full)) {
+    grid-column: wide;
 }
 
 .gh-content :is(h2, h3, h4) {
@@ -696,20 +707,40 @@ body.home-template {
     border-left-color: var(--ce-accent);
 }
 
-@media (max-width: 767px) {
+/* Tablets and small laptops: one column, TOC hidden until there's room beside the text */
+@media (max-width: 1100px) {
     .ce-post-layout,
     .ce-post-layout:has(.ce-toc:not([hidden])) {
         grid-template-columns: minmax(0, 1fr);
-        padding: 0 16px;
-    }
-
-    /* Source's grid already adds a side gutter inside the pane; extra padding would squeeze the text */
-    :is(.ce-post-layout, .page-template) .gh-content {
-        padding: 24px 0;
     }
 
     .ce-toc {
         display: none;
+    }
+}
+
+/* Phones: the pane goes edge to edge (no outer margin, side borders or rounded corners)
+   with a single 20px gutter, so the text gets ~90% of the screen width */
+@media (max-width: 767px) {
+    .ce-post-layout,
+    .ce-post-layout:has(.ce-toc:not([hidden])) {
+        padding: 0;
+    }
+
+    :is(.ce-post-layout, .page-template) .gh-content {
+        --container-gap: 20px;
+        width: 100%;
+        padding: 28px 0;
+        border-inline: 0;
+        border-radius: 0;
+        box-shadow: none;
+    }
+
+    /* Code blocks span the full screen width; text keeps its gutter */
+    :is(.ce-post-layout, .page-template) .gh-content > :is(pre, .kg-code-card) {
+        grid-column: full;
+        border-inline: 0;
+        border-radius: 0;
     }
 }
 
