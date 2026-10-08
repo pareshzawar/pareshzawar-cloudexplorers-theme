@@ -1,0 +1,20 @@
+{{!-- Compact card: image + title + meta. Beside the lead post it sits image-left;
+      with stacked=true (the grid below) the image sits on top. --}}
+<article class="ce-card{{#if stacked}} is-stacked{{/if}}">
+    <a class="ce-card-link" href="{{url}}">
+        {{#if feature_image}}
+            <img class="ce-card-image"
+                srcset="{{img_url feature_image size="s" format="webp"}} 320w,
+                        {{img_url feature_image size="m" format="webp"}} 600w"
+                sizes="(max-width: 600px) 100vw, 360px"
+                src="{{img_url feature_image size="m"}}"
+                alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}"
+                loading="lazy">
+        {{/if}}
+        <div class="ce-card-body">
+            {{#if primary_tag}}<p class="ce-card-tag">{{primary_tag.name}}</p>{{/if}}
+            <h3 class="ce-card-title">{{title}}</h3>
+            {{> "ce/meta"}}
+        </div>
+    </a>
+</article>

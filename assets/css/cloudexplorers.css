@@ -274,80 +274,204 @@ body.home-template {
     height: 20px;
 }
 
-/* 5. Homepage feed
+/* 5. Homepage (home.hbs)
 /* ---------------------------------------------------------- */
 
-/* Feed heading, e.g. "./latest-dispatches --sort newest" (text set in home.hbs) */
-.home-template .gh-container-title {
-    padding-bottom: 16px;
-    border-bottom: 1px dashed var(--ce-pattern-dots);
+/* Title band: dotted blue, with "Follow: RSS" on the right */
+.ce-hero {
+    padding-block: 64px 120px; /* extra bottom space for the sheet to overlap */
+    background-color: var(--ce-bg-home);
+    background-image: radial-gradient(var(--ce-pattern-dots) 1.5px, transparent 1.5px);
+    background-size: 20px 20px;
+}
+
+.ce-hero-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ce-hero-prompt {
+    margin-bottom: 12px;
     color: var(--ce-accent);
     font-family: var(--font-mono);
     font-size: 1.4rem;
-    letter-spacing: 0;
-    text-transform: none;
 }
 
-/* Cards: solid tiles with a teal border, lifting slightly on hover.
-   Source's grid separator lines are turned off because the borders replace them. */
-.home-template .gh-card {
-    overflow: hidden;
-    background: var(--ce-feed-card);
-    border: 1px solid var(--ce-accent);
-    border-radius: 8px;
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.home-template .gh-card::before,
-.home-template .gh-card::after {
-    display: none;
-}
-
-.home-template .gh-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 24px rgb(0 0 0 / 0.3);
-}
-
-.home-template .gh-card-image {
-    margin-bottom: 0;
-    aspect-ratio: 16 / 9;
-}
-
-.home-template .gh-card-wrapper {
-    flex-grow: 1;
-    padding: 24px;
-}
-
-.home-template .gh-card-meta {
-    margin-top: auto;
-    color: var(--ce-accent);
+.ce-hero-title {
+    max-width: 22ch;
     font-family: var(--font-mono);
+    font-size: clamp(3rem, 2rem + 2.5vw, 4.8rem);
+    letter-spacing: -0.02em;
 }
 
-/* Newest post spans the full row with image left, text right */
-@media (min-width: 769px) {
-    .home-template .gh-feed .gh-card:first-child {
-        grid-column: 1 / -1;
-    }
+.ce-hero-desc {
+    max-width: 60ch;
+    margin-top: 14px;
+    color: var(--ce-text-muted);
+    font-size: 1.8rem;
+}
 
-    .home-template .gh-feed .gh-card:first-child .gh-card-link {
-        display: flex;
-        flex-direction: row;
-    }
+.ce-follow {
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    font-weight: 700;
+}
 
-    .home-template .gh-feed .gh-card:first-child .gh-card-image {
-        flex: 0 0 55%;
-        aspect-ratio: auto;
-        min-height: 340px;
-    }
+.ce-follow svg {
+    width: 26px;
+    height: 26px;
+    fill: currentColor;
+}
 
-    .home-template .gh-feed .gh-card:first-child .gh-card-wrapper {
-        justify-content: center;
-        padding: 40px;
-    }
+/* The raised "sheet" holding the posts, overlapping the band */
+.ce-sheet > .gh-inner {
+    margin-top: -80px;
+    padding: clamp(20px, 4vw, 48px);
+    background: var(--ce-reading-bg);
+    color: var(--ce-reading-text);
+    border: 1px solid var(--ce-reading-border);
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgb(0 0 0 / 0.2);
+}
 
-    .home-template .gh-feed .gh-card:first-child .gh-card-title {
-        font-size: 3.2rem;
+/* Lead post (left, ~2/3) + two side posts (right) */
+.ce-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    gap: 40px;
+}
+
+.ce-top-side {
+    display: grid;
+    gap: 32px;
+    align-content: start;
+}
+
+.ce-card-link {
+    display: block;
+    color: inherit;
+}
+
+.ce-card-link:hover {
+    opacity: 1;
+}
+
+.ce-card-link:hover :is(.ce-lead-title, .ce-card-title) {
+    color: var(--ce-reading-link);
+}
+
+.ce-lead-image,
+.ce-card-image {
+    width: 100%;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.ce-lead-image {
+    aspect-ratio: 16 / 9;
+    margin-bottom: 20px;
+}
+
+.ce-card-tag {
+    margin-bottom: 8px;
+    color: var(--ce-reading-link);
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.ce-lead-title {
+    font-family: var(--font-mono);
+    font-size: clamp(2.4rem, 1.8rem + 1.2vw, 3.2rem);
+    line-height: 1.2;
+    color: var(--ce-reading-heading);
+    transition: color 0.15s;
+}
+
+.ce-card-excerpt {
+    margin-top: 12px;
+    color: var(--ce-reading-muted);
+    font-size: 1.7rem;
+    line-height: 1.6;
+}
+
+.ce-card-meta {
+    margin-top: 12px;
+    color: var(--ce-reading-muted);
+    font-size: 1.4rem;
+}
+
+.ce-sep {
+    margin-inline: 8px;
+    opacity: 0.6;
+}
+
+/* Side card: image on the left, text on the right */
+.ce-card .ce-card-link {
+    display: grid;
+    grid-template-columns: 42% minmax(0, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.ce-card .ce-card-image {
+    aspect-ratio: 16 / 10;
+}
+
+.ce-card-title {
+    font-family: var(--font-mono);
+    font-size: 1.8rem;
+    line-height: 1.3;
+    color: var(--ce-reading-heading);
+    transition: color 0.15s;
+}
+
+/* Grid card: image on top */
+.ce-card.is-stacked .ce-card-link {
+    grid-template-columns: minmax(0, 1fr);
+}
+
+.ce-feed-title {
+    margin: 56px 0 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed var(--ce-reading-rule);
+    color: var(--ce-reading-link);
+    font-family: var(--font-mono);
+    font-size: 1.4rem;
+    font-weight: 500;
+}
+
+.ce-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+    gap: 40px 32px;
+}
+
+.ce-more {
+    display: inline-block;
+    margin-top: 40px;
+    color: var(--ce-reading-link);
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+}
+
+@media (max-width: 900px) {
+    .ce-top {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 480px) {
+    /* Side cards stack too on small phones */
+    .ce-card .ce-card-link {
+        grid-template-columns: minmax(0, 1fr);
     }
 }
 
@@ -377,9 +501,77 @@ body.home-template {
     box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
 }
 
-.gh-article-tag {
-    color: var(--ce-accent-hover);
+/* Article header: tags, title, "date | N min read", authors */
+.ce-article-tags {
+    margin-bottom: 14px;
+    font-size: 1.4rem;
     font-weight: 600;
+}
+
+.ce-article-tags a {
+    color: var(--ce-accent-hover);
+}
+
+.ce-article-date {
+    margin-top: 22px;
+    color: var(--ce-text-muted);
+    font-size: 1.6rem;
+}
+
+.ce-article-authors {
+    display: grid;
+    gap: 12px;
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ce-article-authors li {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.ce-avatar {
+    flex: none;
+    width: 48px;
+    height: 48px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: var(--ce-card);
+}
+
+.ce-avatar img,
+.ce-avatar svg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ce-avatar.is-large {
+    width: 96px;
+    height: 96px;
+}
+
+.ce-author-name {
+    display: block;
+    color: var(--ce-accent);
+    font-weight: 600;
+}
+
+.ce-author-role {
+    display: block;
+    color: var(--ce-text-muted);
+    font-size: 1.4rem;
+}
+
+/* Excerpt as an italic lead-in under a short centred divider, top of the reading pane */
+.gh-content > .ce-lead-in {
+    padding-top: 28px;
+    color: var(--ce-reading-muted);
+    font-size: 1.9rem;
+    font-style: italic;
+    background: linear-gradient(var(--ce-reading-rule), var(--ce-reading-rule)) top center / 120px 2px no-repeat;
 }
 
 /* Article + sticky TOC side by side; the TOC column only exists when the TOC is shown */
@@ -579,6 +771,143 @@ body.home-template {
 .ce-share-box svg {
     width: 18px;
     height: 18px;
+}
+
+/* Share rail: sticky buttons on the left edge of posts */
+.ce-share-rail {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    z-index: 900;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(-50%);
+    border-radius: 0 8px 8px 0;
+    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+}
+
+.ce-share-rail :is(a, button) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    background: var(--ce-card);
+    border: 0;
+    border-bottom: 1px solid var(--ce-border);
+    color: var(--ce-text-muted);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.ce-share-rail :is(a, button):last-child {
+    border-bottom: 0;
+}
+
+.ce-share-rail :is(a, button):is(:hover, .is-copied) {
+    background: var(--ce-burgundy);
+    color: #fff;
+    opacity: 1;
+}
+
+.ce-share-rail svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Below ~1240px the rail would touch the article, so it goes away; the share row at the end stays */
+@media (max-width: 1240px) {
+    .ce-share-rail {
+        display: none;
+    }
+}
+
+/* After the article: author box and previous/next */
+.ce-after {
+    margin-top: 56px;
+}
+
+.ce-author-box {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    padding: 24px 0;
+    border-top: 1px solid var(--ce-border);
+}
+
+.ce-author-box p {
+    margin-top: 6px;
+    color: var(--ce-text-muted);
+    line-height: 1.6;
+}
+
+.ce-prev-next {
+    margin-top: 40px;
+}
+
+.ce-prev-next > .gh-inner {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+    padding: clamp(20px, 4vw, 40px);
+    background: var(--ce-reading-bg);
+    color: var(--ce-reading-text);
+    border: 1px solid var(--ce-reading-border);
+    border-radius: 12px;
+}
+
+/* Hide the box entirely when there is neither a previous nor a next post */
+.ce-prev-next:not(:has(.ce-pn)) {
+    display: none;
+}
+
+.ce-pn {
+    display: block;
+    color: inherit;
+}
+
+.ce-pn.is-next {
+    grid-column: 2;
+    text-align: right;
+}
+
+.ce-pn:hover {
+    opacity: 1;
+}
+
+.ce-pn:hover .ce-pn-title {
+    color: var(--ce-reading-link);
+}
+
+.ce-pn-label {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--ce-reading-link);
+    font-family: var(--font-mono);
+    font-size: 1.3rem;
+}
+
+.ce-pn-title {
+    display: block;
+    color: var(--ce-reading-heading);
+    font-family: var(--font-mono);
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.3;
+    transition: color 0.15s;
+}
+
+@media (max-width: 700px) {
+    .ce-prev-next > .gh-inner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .ce-pn.is-next {
+        grid-column: auto;
+        text-align: left;
+    }
 }
 
 /* 7. About / Subscribe pages

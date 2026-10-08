@@ -1,12 +1,46 @@
 {{!< default}}
-{{!-- The tag above means: insert everything in this file into the body of the default.hbs template --}}
+{{!-- Homepage: a title band, then a raised "sheet" with the newest post as the lead,
+      the next two beside it, and the rest in a grid. 12 posts in total, matching
+      posts_per_page, so /page/2/ continues exactly where this page stops. --}}
 
-{{> "components/header" headerStyle=@custom.header_style}}
+<section class="ce-hero gh-outer">
+    <div class="ce-hero-inner gh-inner">
+        <div>
+            <p class="ce-hero-prompt">$ cat ./README</p>
+            <h1 class="ce-hero-title">{{@site.title}}</h1>
+            {{#if @site.description}}<p class="ce-hero-desc">{{@site.description}}</p>{{/if}}
+        </div>
+        <a class="ce-follow" href="{{@site.url}}/rss/" aria-label="Follow via RSS">Follow: {{> "icons/rss"}}</a>
+    </div>
+</section>
 
-{{#match @custom.header_style "!=" "Highlight"}}
-    {{> "components/featured" showFeatured=@custom.show_featured_posts limit=4}}
-{{/match}}
+<main class="ce-sheet gh-outer">
+    <div class="gh-inner">
+        {{#get "posts" include="authors,tags" limit="12" as |recent|}}
 
-{{> "components/cta"}}
+            {{!-- Lead post + two side posts --}}
+            <div class="ce-top">
+                {{#foreach recent limit="1"}}
+                    {{> "ce/post-lead"}}
+                {{/foreach}}
+                <div class="ce-top-side">
+                    {{#foreach recent from="2" to="3"}}
+                        {{> "ce/post-side"}}
+                    {{/foreach}}
+                </div>
+            </div>
 
-{{> "components/post-list" feed="home" postFeedStyle=@custom.post_feed_style showTitle=true title="./latest-dispatches --sort newest" showSidebar=@custom.show_publication_info_sidebar}}
+            {{!-- Everything else --}}
+            <h2 class="ce-feed-title">./latest-dispatches --sort newest</h2>
+            <div class="ce-grid">
+                {{#foreach recent from="4"}}
+                    {{> "ce/post-side" stacked=true}}
+                {{/foreach}}
+            </div>
+
+            {{#match recent.length ">=" 12}}
+                <a class="ce-more" href="{{@site.url}}/page/2/">$ ls --older &rarr;</a>
+            {{/match}}
+        {{/get}}
+    </div>
+</main>

@@ -53,8 +53,11 @@
     
 </div>
 
-{{!-- Social links pinned to the left edge (hidden on small screens) --}}
-{{> "ce/side-panel"}}
+{{!-- Social links pinned to the left edge (hidden on small screens).
+     Not on posts: the share rail (partials/ce/share-rail.hbs) uses that spot there. --}}
+{{^is "post"}}
+    {{> "ce/side-panel"}}
+{{/is}}
 
 {{!-- Floating subscribe button for non-members (CSS hides it on the /subscribe page itself) --}}
 {{#unless @member}}

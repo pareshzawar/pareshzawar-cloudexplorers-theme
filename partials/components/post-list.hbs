@@ -1,6 +1,6 @@
 {{!--
     Parameters:
-    * feed (index, home, archive, recent)
+    * feed (index, archive, recent)
     * postFeedStyle (list, grid)
     * showTitle (true, false)
     * showSidebar (true, false)
@@ -18,42 +18,7 @@
         <main class="gh-main">
             <div class="gh-feed">
 
-                {{!-- Homepage --}}
-                {{#match feed "home"}}
-                    {{#match @custom.header_style "Highlight"}}
-                        {{#if @custom.show_featured_posts}}
-                            {{#match posts.length ">=" 4}}
-                                {{#get "posts" include="authors" limit="16"}}
-                                    {{#foreach posts from="5"}}
-                                        {{> "post-card" lazyLoad=true}}
-                                    {{/foreach}}
-                                {{/get}}
-                            {{/match}}
-                        {{else}}
-                            {{#match posts.length ">=" 10}}
-                                {{#get "posts" include="authors" limit="22"}}
-                                    {{#foreach posts from="11"}}
-                                        {{> "post-card" lazyLoad=true}}
-                                    {{/foreach}}
-                                {{/get}}
-                            {{/match}}
-                        {{/if}}
-                    {{else match @custom.header_style "Magazine"}}
-                        {{#match posts.length ">=" 7}}
-                            {{#get "posts" include="authors" limit="19"}}
-                                {{#foreach posts from="8"}}
-                                    {{> "post-card" lazyLoad=true}}
-                                {{/foreach}}
-                            {{/get}}
-                        {{/match}}
-                    {{else}}
-                        {{#get "posts" include="authors" limit=@config.posts_per_page}}
-                            {{#foreach posts}}
-                                {{> "post-card" lazyLoad=true}}
-                            {{/foreach}}
-                        {{/get}}
-                    {{/match}}
-                {{/match}}
+                {{!-- (Homepage feed removed: home.hbs renders its own layout) --}}
 
                 {{!-- All posts --}}
                 {{#match feed "index"}}

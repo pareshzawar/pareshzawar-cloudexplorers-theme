@@ -28,8 +28,9 @@ The previous version lived in *Settings → Code injection* (~1,500 lines). Movi
 | `partials/components/navigation.hbs` | `~/ce` logo, theme toggle, members buttons removed |
 | `partials/components/footer.hbs` | Social bar, terminal footer, signup form on the homepage only |
 | `page-series.hbs` | The `/series/` page: one card per series |
-| `post.hbs` | Share rows top and bottom, article + sticky table of contents |
-| `home.hbs` | Feed heading `./latest-dispatches --sort newest` |
+| `post.hbs` | Tags/date/authors header, excerpt lead-in, sticky share rail, TOC, author box, previous/next |
+| `home.hbs` | Title band with Follow (RSS), lead post + two side posts, then a grid (12 posts per page) |
+| `partials/ce/post-lead.hbs`, `post-side.hbs`, `meta.hbs` | Homepage cards and their "author \| N min read" line |
 | `default.hbs` | Palette picked before first paint, GoatCounter, side panel, subscribe pill |
 | `package.json` | Theme name and Design settings (below) |
 
@@ -104,8 +105,10 @@ Until both secrets exist, the workflow only runs the checks.
 7. **Subscribe page content** (the `cadence.conf` block, series list, etc.) is now edited directly in
    the page editor. The old Code Injection used to rewrite it with JavaScript.
 
-Design settings the theme starts with (all changeable in *Customize*): logo on the left, header
-*Off* on the homepage, *Grid* feed, *Consistent mono* headings.
+Design settings the theme starts with (all changeable in *Customize*): logo on the left,
+*Consistent mono* headings. The homepage layout is fixed by `home.hbs`, so Source's homepage
+header settings (Header style, Header text, Background image, Featured posts) and "Show related
+articles" were removed; tag and author pages still follow *Post feed style*.
 
 ## Developing locally
 

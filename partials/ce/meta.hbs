@@ -1,0 +1,5 @@
+{{!-- "Author, Author | 5 min read" line used on homepage cards. Expects a post as context. --}}
+<p class="ce-card-meta">
+    <span>{{authors autolink="false" separator=", "}}</span>
+    {{#if reading_time}}<span class="ce-sep" aria-hidden="true">|</span><span>{{reading_time minute="1 min read" minutes="% min read"}}</span>{{/if}}
+</p>
