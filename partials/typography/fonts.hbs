@@ -1,3 +1,7 @@
+{{!-- Cloud Explorers: JetBrains Mono is used for headings, code and UI everywhere,
+      so it is always loaded, whatever "Title font" is set to. --}}
+{{> "typography/mono"}}
+
 {{!-- Sans-serif font is always loaded, because it's the default font for some part of the theme regardless of the settings --}}
 {{> "typography/sans"}}
 
@@ -8,7 +12,7 @@
 {{else match @custom.title_font "Elegant serif"}}
     {{> "typography/serif"}}
 {{else}}
-    {{> "typography/mono"}}
+    {{!-- (mono already loaded above) --}}
     {{#match @custom.body_font "Elegant serif"}}
         {{> "typography/serif"}}
     {{/match}}

@@ -984,39 +984,76 @@ body.home-template {
     font-family: var(--font-mono);
 }
 
-/* Subscribe form written in the page body: terminal-styled input and button */
-.page-subscribe .gh-content input[type="email"] {
-    width: 100%;
-    padding: 14px 16px;
-    background: var(--ce-glow-low);
-    border: 1px solid var(--ce-border);
-    border-radius: 6px;
+/* Ghost's built-in Signup card (type /signup in the editor).
+   The card writes its own colours inline (light grey background, black text, white
+   button text), which clash with the dark pane: the typed email and button label
+   disappear. !important makes it follow the palette instead, in posts and pages. */
+.gh-content .kg-signup-card {
+    background: var(--ce-reading-wash) !important;
+    border: 1px solid var(--ce-reading-border);
+    border-radius: 12px;
+}
+
+.gh-content .kg-signup-card :is(.kg-signup-card-heading, .kg-signup-card-subheading,
+    .kg-signup-card-success, .kg-signup-card-error, .kg-signup-card-disclaimer) {
+    color: var(--ce-reading-text) !important;
+}
+
+/* The heading is part of the card, not a section heading: no accent bar, calmer size */
+.gh-content .kg-signup-card-heading {
+    padding-left: 0;
+    border-left: 0;
+    font-size: clamp(2.4rem, 1.8rem + 1.2vw, 3.2rem) !important;
+    color: var(--ce-reading-heading) !important;
     font-family: var(--font-mono);
 }
 
-.page-subscribe .gh-content input[type="email"]:focus {
-    border-color: var(--ce-accent);
+/* Ghost wraps input + button in a white bordered box; make it follow the pane */
+.gh-content .kg-signup-card-fields {
+    gap: 8px;
+    background: transparent !important;
+    border: 0 !important;
+}
+
+.gh-content .kg-signup-card-input {
+    background: var(--ce-reading-bg) !important;
+    color: var(--ce-reading-text) !important;
+    border: 1px solid var(--ce-reading-border) !important;
+    font-family: var(--font-mono);
+}
+
+.gh-content .kg-signup-card-input::placeholder {
+    color: var(--ce-reading-muted);
+    opacity: 1;
+}
+
+.gh-content .kg-signup-card-input:focus {
+    border-color: var(--ce-reading-link) !important;
     outline: none;
-    box-shadow: 0 0 0 2px var(--ce-glow-low);
+    box-shadow: 0 0 0 3px var(--ce-glow-low);
 }
 
-.page-subscribe .gh-content button[type="submit"] {
-    width: 100%;
-    margin-top: 12px;
-    padding: 18px 24px;
-    background: transparent;
-    border: 1.5px solid var(--ce-accent);
-    border-radius: 6px;
-    color: var(--ce-accent);
+/* Solid teal button with pane-coloured text: readable in both palettes */
+.gh-content .kg-signup-card-button {
+    background: var(--ce-reading-link) !important;
+    color: var(--ce-reading-bg) !important;
     font-family: var(--font-mono);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.2s, box-shadow 0.2s;
+    font-weight: 700;
 }
 
-.page-subscribe .gh-content button[type="submit"]:hover {
-    background: var(--ce-glow-low);
-    box-shadow: 0 0 18px var(--ce-glow-high);
+.gh-content .kg-signup-card-error {
+    color: var(--ce-reading-link-hover) !important;
+}
+
+/* Phones: email field on its own line, full-width button under it */
+@media (max-width: 480px) {
+    .gh-content .kg-signup-card-fields {
+        flex-direction: column;
+    }
+
+    .gh-content .kg-signup-card-button {
+        width: 100%;
+    }
 }
 
 /* The floating pill is pointless on the page it links to */
