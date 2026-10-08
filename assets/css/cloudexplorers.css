@@ -438,6 +438,11 @@ body.home-template {
     color: var(--ce-reading-link-hover);
 }
 
+/* Links inside bold text (e.g. "**[Kladen](…)**") keep the link colour, not the bold colour */
+.gh-content :is(strong, b) a {
+    color: var(--ce-reading-link);
+}
+
 .gh-content blockquote {
     padding: 14px 20px;
     background: var(--ce-glow-low);
@@ -622,6 +627,61 @@ body.home-template {
 /* The floating pill is pointless on the page it links to */
 .page-subscribe .ce-subscribe-bubble {
     display: none;
+}
+
+/* "$ whoami" profile card, written as an HTML card in the Ghost editor:
+   <div class="ce-whoami"><p class="ce-whoami-cmd"><span>$</span> whoami</p>
+   <dl><dt>name</dt><dd>…</dd>…</dl></div>
+   Always dark (like code blocks) so it reads as a terminal in both palettes. */
+.gh-content .ce-whoami {
+    padding: 20px 24px;
+    background: var(--ce-code-bg);
+    color: var(--ce-code-text);
+    border: 1px solid var(--ce-reading-border);
+    border-left: 4px solid var(--ce-accent);
+    border-radius: 8px;
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    line-height: 1.6;
+}
+
+.gh-content .ce-whoami-cmd {
+    margin: 0 0 12px;
+    color: #9fb8ae;
+}
+
+.gh-content .ce-whoami-cmd span {
+    color: #2ee0b8;
+    font-weight: 700;
+    user-select: none;
+}
+
+/* Two columns: short key on the left, value on the right */
+.gh-content .ce-whoami dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 6px 20px;
+    margin: 0;
+}
+
+.gh-content .ce-whoami dt {
+    color: #2ee0b8;
+}
+
+.gh-content .ce-whoami dd {
+    margin: 0;
+}
+
+/* Stack key above value on narrow phones */
+@media (max-width: 480px) {
+    .gh-content .ce-whoami dl {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .gh-content .ce-whoami dd {
+        margin-bottom: 8px;
+    }
 }
 
 /* 8. Series page (page-series.hbs)
