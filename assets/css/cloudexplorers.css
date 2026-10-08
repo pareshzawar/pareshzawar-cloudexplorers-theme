@@ -36,17 +36,24 @@ default.hbs (and the "color_theme" options in package.json).
     --ce-border: #962848;
     --ce-text: #fff0f3;
     --ce-text-muted: #e8a0b0;
-    --ce-text-dim: #c05070;
+    --ce-text-dim: #e07a96;            /* small print; >= 4.5:1 on every dark background */
     --ce-glow-low: rgb(0 200 160 / 0.10);
     --ce-glow-high: rgb(0 200 160 / 0.24);
     --ce-pattern-dots: rgb(0 242 255 / 0.09);   /* small dots on blue */
     --ce-pattern-circles: rgb(0 255 160 / 0.04); /* large circles on green */
     --ce-feed-card: #062b20;
-    --ce-reading-bg: #f4f8f6;          /* the light "paper" posts are read on */
-    --ce-reading-text: #0a241c;
-    --ce-reading-heading: #000;
-    --ce-reading-border: #d4e5df;
-    --ce-code-bg: #051f1a;
+    /* Reading pane: dark like the page, so there is no bright block to squint at.
+       Soft off-white on charcoal-green rather than pure white on black (less glare/halo). */
+    --ce-reading-bg: #0f211c;
+    --ce-reading-text: #d9e6e1;        /* 13:1 */
+    --ce-reading-heading: #f2f7f5;
+    --ce-reading-muted: #9fb8ae;       /* captions, secondary text: 7.9:1 */
+    --ce-reading-link: #2ee0b8;        /* 9.9:1 */
+    --ce-reading-link-hover: #ff8fa8;
+    --ce-reading-rule: rgb(255 255 255 / 0.10); /* hairlines inside the pane */
+    --ce-reading-wash: rgb(255 255 255 / 0.05); /* faint fills (callouts, toggles) */
+    --ce-reading-border: #1d3a31;
+    --ce-code-bg: #08150f;             /* a step darker than the pane so code stands out */
     --ce-code-text: #e0f5ee;
     --ce-toc-bg: rgb(5 31 26 / 0.85);
     --ce-toc-border: #0f5038;
@@ -72,6 +79,11 @@ default.hbs (and the "color_theme" options in package.json).
     --ce-reading-bg: #ffffff;
     --ce-reading-text: #0a241c;
     --ce-reading-heading: #000;
+    --ce-reading-muted: #4d6a60;       /* 5.9:1 */
+    --ce-reading-link: #00806a;        /* 4.9:1 (the bright teal was only 2:1 on white) */
+    --ce-reading-link-hover: #b01e3a;
+    --ce-reading-rule: rgb(0 0 0 / 0.08);
+    --ce-reading-wash: rgb(0 0 0 / 0.05);
     --ce-reading-border: #d4e5df;
     --ce-code-bg: #051f1a;
     --ce-code-text: #e0f5ee;
@@ -102,14 +114,15 @@ default.hbs (and the "color_theme" options in package.json).
     background-color: var(--ce-panel);
 }
 
-/* The reading pane is light in every palette: give anything inside it
-   (including Ghost cards like callouts and toggles) dark-on-light colours. */
+/* The reading pane has its own colours per palette (dark in Terminal, white in Light).
+   Feeding them into Source's variables keeps Ghost cards (callouts, toggles,
+   tables, captions) readable inside it too. */
 .gh-content {
     --color-darker-gray: var(--ce-reading-text);
     --color-primary-text: var(--ce-reading-text);
-    --color-secondary-text: rgb(0 0 0 / 0.6);
-    --color-border: rgb(0 0 0 / 0.08);
-    --color-lighter-gray: rgb(0 0 0 / 0.05);
+    --color-secondary-text: var(--ce-reading-muted);
+    --color-border: var(--ce-reading-rule);
+    --color-lighter-gray: var(--ce-reading-wash);
 }
 
 /* 3. Page backgrounds
@@ -118,6 +131,12 @@ default.hbs (and the "color_theme" options in package.json).
 body {
     background-image: radial-gradient(circle, var(--ce-pattern-circles) 18px, transparent 19px);
     background-size: 80px 80px;
+}
+
+/* Posts and pages: plain background so nothing competes with the text
+   (the dotted band behind the post header stays) */
+body:is(.post-template, .page-template) {
+    background-image: none;
 }
 
 body.home-template {
@@ -158,7 +177,7 @@ body.home-template {
     margin-left: 2px;
     background: var(--ce-accent);
     vertical-align: text-bottom;
-    animation: ce-blink 1s step-end infinite;
+    animation: ce-blink 1s step-end 6; /* ~6s of blinking, then a steady cursor */
 }
 
 @keyframes ce-blink {
@@ -377,16 +396,26 @@ body.home-template {
     grid-template-columns: minmax(0, 1fr) 260px;
 }
 
-/* The light reading pane (posts and every page, so text is always dark-on-light) */
+/* The reading pane (posts and every page).
+   18px text, 1.7 line height and a 680px column (~70 characters per line)
+   are the comfortable range for long technical reads. */
 .ce-post-layout .gh-content,
 .page-template .gh-content {
+    --content-font-size: 1.8rem;
+    --content-width: 680px;
     padding: 40px;
     background: var(--ce-reading-bg);
     color: var(--ce-reading-text);
     border: 1px solid var(--ce-reading-border);
     border-radius: 12px;
     box-shadow: 0 8px 30px rgb(0 0 0 / 0.15);
-    line-height: 1.85;
+    line-height: 1.7;
+}
+
+/* Pages have no TOC wrapper, so centre the pane as its own column */
+.page-template .gh-content {
+    width: min(860px, 100% - 32px);
+    margin-inline: auto;
 }
 
 .gh-content :is(h2, h3, h4) {
@@ -400,12 +429,13 @@ body.home-template {
 }
 
 .gh-content a {
-    color: var(--ce-accent);
+    color: var(--ce-reading-link);
     text-decoration: underline;
+    text-underline-offset: 0.15em;
 }
 
 .gh-content a:hover {
-    color: var(--ce-burgundy);
+    color: var(--ce-reading-link-hover);
 }
 
 .gh-content blockquote {
@@ -418,7 +448,9 @@ body.home-template {
 .gh-content pre {
     background: var(--ce-code-bg);
     color: var(--ce-code-text);
-    border: 1px solid var(--ce-toc-border);
+    border: 1px solid var(--ce-reading-border);
+    font-size: 1.5rem;
+    line-height: 1.6;
 }
 
 /* Table of contents (filled by cloudexplorers.js) */
@@ -474,8 +506,9 @@ body.home-template {
         padding: 0 16px;
     }
 
-    .ce-post-layout .gh-content {
-        padding: 24px 20px;
+    /* Source's grid already adds a side gutter inside the pane; extra padding would squeeze the text */
+    :is(.ce-post-layout, .page-template) .gh-content {
+        padding: 24px 0;
     }
 
     .ce-toc {
@@ -548,10 +581,6 @@ body.home-template {
 
 :is(.page-about, .page-subscribe) .gh-article-title {
     color: var(--ce-accent);
-    font-family: var(--font-mono);
-}
-
-:is(.page-about, .page-subscribe) .gh-content {
     font-family: var(--font-mono);
 }
 
