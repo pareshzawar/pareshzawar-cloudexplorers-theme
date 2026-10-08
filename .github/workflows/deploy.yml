@@ -1,0 +1,44 @@
+# Checks the theme on every push / pull request; on pushes to main it also uploads and
+# activates it on the blog. Deploying needs two repository secrets (see README):
+# GHOST_ADMIN_API_URL and GHOST_ADMIN_API_KEY. Without them only the checks run.
+name: Check and deploy theme
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # Secrets can't be used in "if:" directly, so expose whether the key is set
+      HAS_GHOST_KEY: ${{ secrets.GHOST_ADMIN_API_KEY != '' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # Builds CSS/JS, zips to dist/cloudexplorers.zip and fails on any gscan error
+      - run: pnpm test:ci
+
+      - name: Deploy to Ghost
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && env.HAS_GHOST_KEY == 'true'
+        uses: TryGhost/action-deploy-theme@v1
+        with:
+          api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
+          api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
+          file: dist/cloudexplorers.zip

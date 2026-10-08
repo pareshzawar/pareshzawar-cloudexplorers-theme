@@ -20,7 +20,7 @@ const cssnano = require('cssnano');
 const easyimport = require('postcss-easy-import');
 
 const REPO = 'TryGhost/Source';
-const REPO_READONLY = 'TryGhost/Source';
+const REPO_READONLY = 'TryGhost/Source'; // upstream, used only by the release task we don't run
 const CHANGELOG_PATH = path.join(process.cwd(), '.', 'changelog.md');
 
 function serve(done) {
@@ -46,7 +46,8 @@ function hbs(done) {
 
 function css(done) {
     pump([
-        src('assets/css/screen.css', {sourcemaps: true}),
+        // screen.css is Source; cloudexplorers.css is our layer, built as its own file
+        src(['assets/css/screen.css', 'assets/css/cloudexplorers.css'], {sourcemaps: true}),
         postcss([
             easyimport,
             autoprefixer(),

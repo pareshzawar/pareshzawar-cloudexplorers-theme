@@ -41,19 +41,27 @@
                             </div>
                         </div>
                     </div>
-                    <a href="#/share" class="gh-button gh-button-share">
-                        {{t "Share"}}
-                    </a>
                 </div>
             {{/if}}
+
+            {{> "ce/share" position="top"}}
 
             {{> "feature-image"}}
 
         </header>
 
-        <section class="gh-content gh-canvas is-body{{#if @custom.enable_drop_caps_on_posts}} drop-cap{{/if}}">
-            {{content}}
-        </section>
+        {{!-- Two columns on wide screens: the article, and a sticky table of contents.
+              cloudexplorers.js fills the TOC from the post's h2/h3 headings and leaves it
+              hidden when there are fewer than two. --}}
+        <div class="ce-post-layout">
+            <section class="gh-content gh-canvas is-body{{#if @custom.enable_drop_caps_on_posts}} drop-cap{{/if}}">
+                {{content}}
+                {{> "ce/share" position="bottom"}}
+            </section>
+            <nav class="ce-toc" aria-label="Table of contents" hidden>
+                <p class="ce-toc-title">// contents</p>
+            </nav>
+        </div>
 
     </article>
 

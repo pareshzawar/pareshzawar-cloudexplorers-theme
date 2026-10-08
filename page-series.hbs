@@ -1,0 +1,32 @@
+{{!< default}}
+{{!-- Custom template for the page with slug "series" (Ghost picks page-{slug}.hbs automatically).
+      Shows a card per series from partials/ce/series.hbs, then whatever is written in the page body. --}}
+
+{{#post}}
+
+<main class="gh-main">
+    <article class="gh-article {{post_class}}">
+
+        <header class="gh-article-header gh-canvas">
+            <h1 class="gh-article-title is-title">{{title}}</h1>
+            {{#if custom_excerpt}}
+                <p class="gh-article-excerpt is-body">{{custom_excerpt}}</p>
+            {{/if}}
+        </header>
+
+        <section class="ce-series-page gh-canvas">
+            <p class="ce-series-lead">./series --list --format magazine</p>
+            {{> "ce/series" layout="cards"}}
+        </section>
+
+        {{!-- Optional extra text written in the Ghost editor for this page --}}
+        {{#if html}}
+            <section class="gh-content gh-canvas is-body">
+                {{content}}
+            </section>
+        {{/if}}
+
+    </article>
+</main>
+
+{{/post}}

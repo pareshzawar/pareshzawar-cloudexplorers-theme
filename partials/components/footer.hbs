@@ -1,46 +1,59 @@
-<footer class="gh-footer{{#match @custom.header_and_footer_color "Accent color"}} has-accent-color{{/match}} gh-outer">
+<footer class="gh-footer gh-outer">
     <div class="gh-footer-inner gh-inner">
 
-        {{#if @site.members_enabled}}
-            {{#unless @member}}
-                <section class="gh-footer-signup">
-                    <h2 class="gh-footer-signup-header is-title">
-                        {{#if @custom.signup_heading}}{{@custom.signup_heading}}{{else}}{{@site.title}}{{/if}}
-                    </h2>
-                    <p class="gh-footer-signup-subhead is-body">
-                        {{#if @custom.signup_subheading}}{{@custom.signup_subheading}}{{else}}{{@site.description}}{{/if}}
-                    </p>
-                    {{> "email-subscription" email_field_id="footer-email"}}
-                </section>
-            {{/unless}}
-        {{/if}}
+        {{!-- Email signup: homepage only, for visitors who aren't members yet.
+              Heading/subheading come from Ghost Admin > Design > Site-wide (Signup heading / subheading). --}}
+        {{#is "home"}}
+            {{#if @site.members_enabled}}
+                {{#unless @member}}
+                    <section class="gh-footer-signup">
+                        <h2 class="gh-footer-signup-header is-title">
+                            {{#if @custom.signup_heading}}{{@custom.signup_heading}}{{else}}{{@site.title}}{{/if}}
+                        </h2>
+                        <p class="gh-footer-signup-subhead is-body">
+                            {{#if @custom.signup_subheading}}{{@custom.signup_subheading}}{{else}}{{@site.description}}{{/if}}
+                        </p>
+                        {{> "email-subscription" email_field_id="footer-email"}}
+                    </section>
+                {{/unless}}
+            {{/if}}
+        {{/is}}
 
-        <div class="gh-social-links">
-            {{#social_accounts @site}}
-                <a href="{{href}}" target="_blank" rel="noopener" aria-label="{{name}}">
-                    {{#> (concat "icons/" type)}}
-                        {{!-- Fallback rendered when no per-platform icon partial exists --}}
-                        <span>{{name}}</span>
-                    {{/undefined}}
-                </a>
-            {{/social_accounts}}
+        {{!-- Social links, shown on every page (and the only copy on mobile, where the side panel is hidden) --}}
+        <div class="ce-social-bar">
+            {{> "ce/social-links"}}
         </div>
 
-        <div class="gh-footer-bar">
-            <span class="gh-footer-logo is-title">
-                {{#if @site.logo}}
-                    <img src="{{@site.logo}}" alt="{{@site.title}}">
-                {{else}}
-                    {{@site.title}}
-                {{/if}}
-            </span>
-            <nav class="gh-footer-menu">
-                {{navigation type="secondary"}}
-            </nav>
-            <div class="gh-footer-copyright">
-                {{{t "Powered by {ghostlink}" ghostlink="<a href=\"https://ghost.org/\" target=\"_blank\" rel=\"noopener\">Ghost</a>"}}}
-            </div>
+    </div>
+
+    {{!-- Terminal-style footer: each row is a "$ command" followed by its output --}}
+    <div class="ce-footer">
+        <div class="ce-footer-row">
+            <span><span class="ce-prompt">$</span> whoami</span>
+            <span>Paresh Zawar &mdash; Oracle Cloud Architect &bull; 15+ OCI Certifications</span>
+        </div>
+        <div class="ce-footer-row">
+            <span><span class="ce-prompt">$</span> pwd</span>
+            <span><a href="{{@site.url}}">~/cloudexplorers.club</a></span>
         </div>
 
+        <hr class="ce-footer-divider">
+
+        <p class="ce-footer-comment"><span class="ce-prompt">#</span> -- safe harbour --</p>
+        <p class="ce-footer-note">
+            All views expressed on this blog are solely my own and do not represent the positions of any past,
+            present, or future employer. Technical content, architecture diagrams, and opinions are for
+            informational purposes only. Cloud vendor names and trademarks are property of their respective
+            owners. No warranties expressed or implied. Run in production at your own risk.
+        </p>
+
+        <hr class="ce-footer-divider">
+
+        <div class="ce-footer-row">
+            <span><span class="ce-prompt">$</span> echo $COPYRIGHT</span>
+            {{!-- {{date format="YYYY"}} with no date argument prints the current year, rendered server-side --}}
+            <span>&copy; {{date format="YYYY"}} cloudexplorers.club &mdash; MIT License &mdash; Built on Ghost</span>
+        </div>
+        <p class="ce-footer-comment"><span class="ce-prompt">$</span> exit 0 &nbsp;# thanks for reading</p>
     </div>
 </footer>

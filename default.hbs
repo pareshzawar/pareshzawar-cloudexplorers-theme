@@ -17,30 +17,24 @@
     {{!-- Theme assets - use the {{asset}} helper to reference styles & scripts, this will take care of caching and cache-busting automatically --}}
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}">
 
-    {{!-- Custom background color --}}
-    <style>
-        :root {
-            --background-color: {{@custom.site_background_color}}
-        }
-    </style>
+    {{!-- Cloud Explorers layer: our palettes + components, loaded after Source so it can build on it --}}
+    <link rel="stylesheet" type="text/css" href="{{asset "built/cloudexplorers.css"}}">
 
+    {{!-- Pick the colour theme before first paint so there is no flash of the wrong palette.
+         Order: visitor's saved choice (theme toggle) > the "Color theme" setting in Ghost Admin.
+         "auto" resolves to light or terminal from the visitor's OS preference.
+         The has-light-text / has-dark-text class is what Source itself uses to flip text colours. --}}
     <script>
-        /* The script for calculating the color contrast has been taken from
-        https://gomakethings.com/dynamically-changing-the-text-color-based-on-background-color-contrast-with-vanilla-js/ */
-        var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--background-color');
-        accentColor = accentColor.trim().slice(1);
-
-        if (accentColor.length === 3) {
-            accentColor = accentColor[0] + accentColor[0] + accentColor[1] + accentColor[1] + accentColor[2] + accentColor[2];
-        }
-
-        var r = parseInt(accentColor.substr(0, 2), 16);
-        var g = parseInt(accentColor.substr(2, 2), 16);
-        var b = parseInt(accentColor.substr(4, 2), 16);
-        var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
-        var textColor = (yiq >= 128) ? 'dark' : 'light';
-
-        document.documentElement.className = `has-${textColor}-text`;
+        (function () {
+            var root = document.documentElement;
+            var theme = '{{#match @custom.color_theme "Light"}}light{{else match @custom.color_theme "Auto"}}auto{{else}}terminal{{/match}}';
+            try { theme = localStorage.getItem('ce-theme') || theme; } catch (e) { /* storage blocked: use the site default */ }
+            if (theme === 'auto') {
+                theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'terminal';
+            }
+            root.setAttribute('data-theme', theme);
+            root.className = theme === 'light' ? 'has-dark-text' : 'has-light-text';
+        })();
     </script>
 
     {{!-- This tag outputs all your advanced SEO meta, structured data, and other important settings, it should always be the last tag before the closing head tag --}}
@@ -59,6 +53,14 @@
     
 </div>
 
+{{!-- Social links pinned to the left edge (hidden on small screens) --}}
+{{> "ce/side-panel"}}
+
+{{!-- Floating subscribe button for non-members (CSS hides it on the /subscribe page itself) --}}
+{{#unless @member}}
+    {{> "ce/subscribe-bubble"}}
+{{/unless}}
+
 {{#is "post, page"}}
     {{> "lightbox"}}
 {{/is}}
@@ -68,6 +70,12 @@
 
 {{!-- Ghost outputs required functional scripts with this tag, it should always be the last thing before the closing body tag --}}
 {{ghost_foot}}
+
+{{!-- Privacy-friendly page-view counting with GoatCounter (no cookies, no consent banner needed).
+     Only rendered when a code is set in Ghost Admin > Design > Site-wide > Goatcounter code. --}}
+{{#if @custom.goatcounter_code}}
+    <script data-goatcounter="https://{{@custom.goatcounter_code}}.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+{{/if}}
 
 </body>
 </html>
