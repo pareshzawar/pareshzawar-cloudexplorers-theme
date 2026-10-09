@@ -1,8 +1,8 @@
 {{!< default}}
 {{!-- Homepage, "A · README terminal" hero (Claude Design):
       left  = headline, description, subscribe form and the author line
-      right = a terminal window filled live from Ghost (series, latest post, post count),
-              so it never needs editing when a new post goes out.
+      right = a terminal window filled live from Ghost (latest post, post count, series),
+              ending with the publishing schedule as a crontab line.
       Below: the newest post as a big tile and the next 11 as small tiles
       (12 = posts_per_page, so /page/2/ continues exactly where this page stops). --}}
 
@@ -48,13 +48,6 @@
                 <em>paresh@cloudexplorers: ~/ce</em>
             </div>
             <div class="ce-term-body">
-                <p class="ce-term-cmd"><b>$</b> ls series/</p>
-                {{#get "tags" limit="4" filter="visibility:public" include="count.posts" order="count.posts desc" as |series|}}
-                    {{#foreach series}}
-                        <a class="ce-term-out" href="{{url}}">{{slug}}/</a>
-                    {{/foreach}}
-                {{/get}}
-
                 {{#get "posts" include="tags" limit="1" as |latest|}}
                     {{#foreach latest}}
                         <p class="ce-term-cmd"><b>$</b> head -2 latest.md</p>
@@ -67,6 +60,17 @@
                     <p class="ce-term-cmd"><b>$</b> wc -l posts/</p>
                     <p class="ce-term-out">{{pages.total}} posts</p>
                 {{/get}}
+
+                <p class="ce-term-cmd"><b>$</b> ls series/</p>
+                {{#get "tags" limit="4" filter="visibility:public" include="count.posts" order="count.posts desc" as |series|}}
+                    {{#foreach series}}
+                        <a class="ce-term-out" href="{{url}}">{{slug}}/</a>
+                    {{/foreach}}
+                {{/get}}
+
+                {{!-- The publishing schedule, as a cron entry. Plain text: edit it here if the schedule changes. --}}
+                <p class="ce-term-cmd"><b>$</b> crontab -l</p>
+                <p class="ce-term-out is-wrap"><span class="ce-term-hi">0 9 * * TUE</span> publish --deep-dive <span class="ce-term-dim">#&nbsp;IST</span></p>
 
                 <p class="ce-term-cmd"><b>$</b> <span class="ce-term-cursor" aria-hidden="true"></span></p>
             </div>

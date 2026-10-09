@@ -1306,6 +1306,22 @@ a.ce-term-out:hover {
     color: #80838b;
 }
 
+/* crontab line: wraps on narrow screens instead of cutting off "# IST" */
+.ce-term-out.is-wrap {
+    white-space: normal;
+}
+
+/* crontab line: the schedule bright, the comment dim */
+.ce-term-hi {
+    margin-right: 10px;
+    color: #e8e9ec;
+}
+
+.ce-term-dim {
+    margin-left: 10px;
+    color: #80838b;
+}
+
 .ce-term-cursor {
     display: inline-block;
     width: 9px;

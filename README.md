@@ -18,7 +18,7 @@ light and dark. Built for **Ghost 6**.
 | `default.hbs` | Page frame: fonts, light/dark chosen before first paint, GoatCounter |
 | `post.hbs` | Article + sidebar ("On this page", the series' posts), author, series navigation, subscribe box |
 | `page.hbs` | Pages (About, Subscribe), ending with the subscribe box |
-| `home.hbs`, `index.hbs`, `tag.hbs`, `author.hbs` | Homepage (hero: headline, subscribe form and a terminal window filled live with the series, latest post and post count; then the newest post as a big tile and older posts as small tiles), older posts, series index (tag page, oldest first), author page |
+| `home.hbs`, `index.hbs`, `tag.hbs`, `author.hbs` | Homepage (hero: headline, subscribe form and a terminal window with the latest post, post count, series and publishing schedule; then the newest post as a big tile and older posts as small tiles), older posts, series index (tag page, oldest first), author page |
 | `partials/ce/`, `partials/navigation.hbs` | Header, footer, post tiles/rows, subscribe box, series lists, pagination; the menu skips any "Series" item |
 
 ## Series
@@ -40,8 +40,8 @@ Post sections (h2) are numbered 01, 02… automatically, unless the headings alr
 
 The headline and the line under the author's name are in Ghost Admin → Design → Customize →
 Homepage (**Hero headline**, **Hero byline**). The text under the headline is the site description
-(Settings → General). The terminal needs no editing: it lists the four series with the most posts,
-the newest post and the total number of posts.
+(Settings → General). The terminal fills itself: the newest post, the total number of posts and the four series with the
+most posts. Its last line, the `crontab -l` publishing schedule, is plain text in `home.hbs`.
 
 ## Analytics
 
