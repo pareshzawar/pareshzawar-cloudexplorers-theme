@@ -1158,7 +1158,7 @@ a.ce-meta-strong:hover {
     font-weight: 500;
 }
 
-/* 10. Lists: home, archive, series page, tag page
+/* 10. Lists: home, archive, tag and author pages
 /* ---------------------------------------------------------- */
 
 .ce-list-header + .ce-label {
@@ -1170,8 +1170,7 @@ a.ce-meta-strong:hover {
     flex-direction: column;
 }
 
-.ce-row,
-.ce-series-item {
+.ce-row {
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -1242,12 +1241,6 @@ a.ce-meta-strong:hover {
     color: var(--ce-muted);
     font-size: 16px;
     line-height: 1.6;
-}
-
-.ce-series-index {
-    margin: 0;
-    padding: 0;
-    list-style: none;
 }
 
 .ce-more {
@@ -1430,7 +1423,7 @@ a.ce-meta-strong:hover {
     padding: 32px var(--ce-gutter) 88px; /* bottom room so the floating Subscribe pill never covers the links */
 }
 
-/* Safe harbour: small, muted, readable line length */
+/* Safe harbour statement: small, muted, short paragraphs at a readable line length */
 .ce-disclaimer {
     display: flex;
     flex-direction: column;
@@ -1441,7 +1434,7 @@ a.ce-meta-strong:hover {
 }
 
 .ce-disclaimer p:not(.ce-label) {
-    margin: 0;
+    margin: 0 0 4px;
     color: var(--ce-muted);
     font-size: 14px;
     line-height: 1.65;

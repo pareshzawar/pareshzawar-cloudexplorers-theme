@@ -17,7 +17,7 @@ light and dark. Built for **Ghost 6**.
 | `assets/fonts/plex/` | IBM Plex Sans + Mono, self-hosted (SIL Open Font License, `OFL.txt`) |
 | `default.hbs` | Page frame: fonts, light/dark chosen before first paint, GoatCounter |
 | `post.hbs` | Article + sidebar ("On this page", the series' posts), author, series navigation, subscribe box |
-| `page.hbs`, `page-series.hbs` | Pages (About, Subscribe) and the `/series/` page |
+| `page.hbs` | Pages (About, Subscribe), ending with the subscribe box |
 | `home.hbs`, `index.hbs`, `tag.hbs`, `author.hbs` | Homepage (intro band + posts with thumbnails), older posts, series index (tag page, oldest first), author page |
 | `partials/ce/` | Header, footer, post row, subscribe box, series lists, pagination |
 
@@ -25,8 +25,8 @@ light and dark. Built for **Ghost 6**.
 
 A series is a Ghost **tag**. Make it the post's **primary tag** (first tag) and the post shows
 "Series · Name" in the sidebar, numbered 01, 02… oldest first, with "Next →" to the next post in
-the same series. The tag page (`/tag/<slug>/`) is the series index. The `/series/` page lists the
-series named in `partials/ce/series.hbs`; names and blurbs come from Ghost Admin → Tags.
+the same series. The tag page (`/tag/<slug>/`) is the series index; its name and description come from
+Ghost Admin → Tags.
 
 Post sections (h2) are numbered 01, 02… automatically, unless the headings already start with a number.
 
