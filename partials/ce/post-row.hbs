@@ -1,16 +1,26 @@
 {{!-- One post in a list (homepage, older posts, author pages):
-      "SERIES / 13 MIN READ / 8 OCT 2026", then the title and the excerpt.
-      Expects a post as its context. --}}
-<article class="ce-row">
-    <p class="ce-meta">
-        {{#if primary_tag}}<a class="ce-meta-strong" href="{{primary_tag.url}}">{{primary_tag.name}}</a><span aria-hidden="true">/</span>{{/if}}
-        {{#if reading_time}}<span>{{reading_time minute="1 min read" minutes="% min read"}}</span><span aria-hidden="true">/</span>{{/if}}
-        <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time>
-    </p>
-    <h2 class="ce-row-title"><a href="{{url}}">{{title}}</a></h2>
-    {{#if custom_excerpt}}
-        <p class="ce-row-excerpt">{{custom_excerpt}}</p>
-    {{else if excerpt}}
-        <p class="ce-row-excerpt">{{excerpt words="32"}}</p>
+      "SERIES / 13 MIN READ / 8 OCT 2026", the title and excerpt, and the feature image as a
+      thumbnail on the right so posts are easy to tell apart. Expects a post as its context. --}}
+<article class="ce-row{{#if feature_image}} has-image{{/if}}">
+    <div class="ce-row-text">
+        <p class="ce-meta">
+            {{#if primary_tag}}<a class="ce-meta-strong" href="{{primary_tag.url}}">{{primary_tag.name}}</a><span aria-hidden="true">/</span>{{/if}}
+            {{#if reading_time}}<span>{{reading_time minute="1 min read" minutes="% min read"}}</span><span aria-hidden="true">/</span>{{/if}}
+            <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time>
+        </p>
+        <h2 class="ce-row-title"><a href="{{url}}">{{title}}</a></h2>
+        {{#if custom_excerpt}}
+            <p class="ce-row-excerpt">{{custom_excerpt}}</p>
+        {{else if excerpt}}
+            <p class="ce-row-excerpt">{{excerpt words="32"}}</p>
+        {{/if}}
+    </div>
+    {{#if feature_image}}
+        <a class="ce-row-image" href="{{url}}" tabindex="-1" aria-hidden="true">
+            <img srcset="{{img_url feature_image size="s" format="webp"}} 320w,
+                         {{img_url feature_image size="m" format="webp"}} 600w"
+                 sizes="(max-width: 600px) 100vw, 200px"
+                 src="{{img_url feature_image size="s"}}" alt="" loading="lazy">
+        </a>
     {{/if}}
 </article>

@@ -462,6 +462,13 @@ a.ce-meta-strong:hover {
     margin-top: 24px;
 }
 
+/* Older posts and pages were written with inline font styles (e.g. a monospace font on
+   headings). !important makes text follow the design anyway; code and the whoami card
+   keep their monospace font. */
+.ce-content :is(p, li, h1, h2, h3, h4, h5, h6, blockquote, figcaption, td):not(.ce-whoami *) {
+    font-family: var(--font-sans) !important;
+}
+
 .ce-content a {
     color: var(--ce-link);
     text-decoration: underline;
@@ -1107,6 +1114,50 @@ a.ce-meta-strong:hover {
     }
 }
 
+/* Homepage intro band: shaded, full width, so the site title reads as the site,
+   not as one more post in the list below */
+.ce-hero {
+    background: var(--ce-surface);
+    border-bottom: 1px solid var(--ce-rule);
+}
+
+.ce-hero-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    max-width: 760px;
+    margin: 0 auto;
+    padding: clamp(40px, 6vw, 72px) var(--ce-gutter);
+}
+
+.ce-hero-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-size: clamp(30px, 4vw, 40px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+}
+
+.ce-hero-desc {
+    max-width: 60ch;
+    margin: 0;
+    color: var(--ce-body);
+    font-size: 19px;
+    line-height: 1.55;
+}
+
+/* With the hero above, the list starts closer to it */
+.home-template .ce-main {
+    padding-top: clamp(32px, 5vw, 56px);
+}
+
+.ce-list-label {
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--ce-ink);
+    font-weight: 500;
+}
+
 /* 10. Lists: home, archive, series page, tag page
 /* ---------------------------------------------------------- */
 
@@ -1124,8 +1175,47 @@ a.ce-meta-strong:hover {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding: 24px 0;
+    padding: 28px 0;
     border-bottom: 1px solid var(--ce-rule);
+}
+
+/* Post rows: text on the left, the feature image as a thumbnail on the right */
+.ce-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.ce-row.has-image {
+    grid-template-columns: minmax(0, 1fr) 200px;
+}
+
+.ce-row-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.ce-row-image img {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    object-fit: cover;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 6px;
+}
+
+/* Phones: thumbnail goes above the text, full width */
+@media (max-width: 600px) {
+    .ce-row.has-image {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .ce-row-image {
+        order: -1;
+    }
 }
 
 .ce-row-title {
@@ -1335,14 +1425,35 @@ a.ce-meta-strong:hover {
 }
 
 .ce-footer-inner {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 32px var(--ce-gutter) 88px; /* bottom room so the floating Subscribe pill never covers the links */
+}
+
+/* Safe harbour: small, muted, readable line length */
+.ce-disclaimer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 78ch;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--ce-rule);
+}
+
+.ce-disclaimer p:not(.ce-label) {
+    margin: 0;
+    color: var(--ce-muted);
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.ce-footer-bar {
     display: flex;
     flex-wrap: wrap;
     gap: 8px 32px;
     align-items: center;
     justify-content: space-between;
-    max-width: 1120px;
-    margin: 0 auto;
-    padding: 20px var(--ce-gutter);
+    padding-top: 8px;
     color: var(--ce-muted);
     font-family: var(--font-mono);
     font-size: 13px;
@@ -1351,10 +1462,6 @@ a.ce-meta-strong:hover {
 
 .ce-footer-meta {
     margin: 0;
-}
-
-.ce-footer-note {
-    display: block;
 }
 
 .ce-footer-links {

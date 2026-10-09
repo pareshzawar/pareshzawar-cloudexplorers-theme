@@ -1,17 +1,19 @@
 {{!< default}}
-{{!-- Homepage: a short introduction (site title + description from Ghost Admin > General),
-      then the 12 newest posts as a plain list. 12 = posts_per_page, so /page/2/ continues
-      exactly where this page stops. --}}
+{{!-- Homepage: a shaded intro band (site title + description from Ghost Admin > General),
+      kept visually separate from the posts below it, then the 12 newest posts.
+      12 = posts_per_page, so /page/2/ continues exactly where this page stops. --}}
+
+<section class="ce-hero">
+    <div class="ce-hero-inner">
+        <p class="ce-label">~/cloudexplorers.club</p>
+        <h1 class="ce-hero-title">{{@site.title}}</h1>
+        {{#if @site.description}}<p class="ce-hero-desc">{{@site.description}}</p>{{/if}}
+    </div>
+</section>
 
 <main class="ce-main">
     <div class="ce-list-page">
-        <header class="ce-list-header">
-            <p class="ce-label">~/cloudexplorers.club</p>
-            <h1 class="ce-article-title">{{@site.title}}</h1>
-            {{#if @site.description}}<p class="ce-article-excerpt">{{@site.description}}</p>{{/if}}
-        </header>
-
-        <p class="ce-label">Latest</p>
+        <h2 class="ce-label ce-list-label">Latest posts</h2>
         <div class="ce-rows">
             {{#get "posts" include="tags" limit="12" as |recent|}}
                 {{#foreach recent}}

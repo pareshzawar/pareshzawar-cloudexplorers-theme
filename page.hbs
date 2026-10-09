@@ -20,6 +20,11 @@
             {{content}}
         </section>
 
+        {{!-- Close every page (About, …) with the subscribe box, except /subscribe/ itself --}}
+        {{#match slug "!=" "subscribe"}}
+            {{> "ce/subscribe-box"}}
+        {{/match}}
+
     </article>
 </main>
 

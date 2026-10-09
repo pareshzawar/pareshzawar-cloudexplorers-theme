@@ -1,18 +1,30 @@
-{{!-- One quiet line: copyright, a short disclaimer, and text links to profiles.
-      To change a profile link, edit it here. --}}
+{{!-- Footer: the Safe Harbour disclaimer, then one quiet line with copyright and
+      text links to profiles. To change a profile link, edit it here. --}}
 <footer class="ce-footer">
     <div class="ce-footer-inner">
-        <p class="ce-footer-meta">
-            &copy; {{date format="YYYY"}} cloudexplorers.club &middot; MIT &middot; Built on Ghost
-            <span class="ce-footer-note">Views are my own, not my employer's.</span>
-        </p>
-        <nav class="ce-footer-links" aria-label="Social">
-            <a href="https://github.com/pareshzawar" rel="noopener">github</a>
-            <a href="https://www.linkedin.com/in/przawar/" rel="noopener">linkedin</a>
-            <a href="https://www.youtube.com/@cloudexploresclub" rel="noopener">youtube</a>
-            <a href="https://x.com/przawar" rel="noopener">x</a>
-            <a href="mailto:przawar@proton.me">email</a>
-            <a href="{{@site.url}}/rss/">rss</a>
-        </nav>
+        <section class="ce-disclaimer" aria-label="Safe harbour">
+            <p class="ce-label">Safe harbour</p>
+            <p>
+                The views expressed here are my own and do not represent those of Oracle Corporation or any
+                employer. Documentation claims reflect Oracle's public documentation as of each post's publish
+                date; measurements are from the regions and dates stated in the post. Model availability, region
+                coverage, supported features and pricing on OCI change frequently: verify against Oracle's
+                documentation and release notes for your own tenancy before making design decisions. Nothing here
+                is an official Oracle statement, a support commitment, or a substitute for your own compliance
+                review. Some content is written with AI assistance, so check commands and steps before you run
+                them or cite them.
+            </p>
+        </section>
+        <div class="ce-footer-bar">
+            <p class="ce-footer-meta">&copy; {{date format="YYYY"}} Paresh Zawar &middot; Built with Ghost</p>
+            <nav class="ce-footer-links" aria-label="Social">
+                <a href="https://github.com/pareshzawar" rel="noopener">github</a>
+                <a href="https://www.linkedin.com/in/przawar/" rel="noopener">linkedin</a>
+                <a href="https://www.youtube.com/@cloudexploresclub" rel="noopener">youtube</a>
+                <a href="https://x.com/przawar" rel="noopener">x</a>
+                <a href="mailto:przawar@proton.me">email</a>
+                <a href="{{@site.url}}/rss/">rss</a>
+            </nav>
+        </div>
     </div>
 </footer>
