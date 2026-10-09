@@ -54,6 +54,11 @@
 
 </div>
 
+{{!-- Floating Subscribe pill for anyone not subscribed yet --}}
+{{#unless @member}}
+    {{> "ce/subscribe-pill"}}
+{{/unless}}
+
 {{#is "post, page"}}
     {{> "lightbox"}}
 {{/is}}

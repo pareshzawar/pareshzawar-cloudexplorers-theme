@@ -998,6 +998,115 @@ a.ce-meta-strong:hover {
     display: none;
 }
 
+/* Share: a row at the end of each post, and a sticky rail on the left on wide screens.
+   Greyscale buttons on the surface tone; ink on hover, like the rest of the design. */
+.ce-share {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.ce-share.is-row {
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.ce-share.is-row .ce-label {
+    margin-right: 6px;
+}
+
+.ce-share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 6px;
+    color: var(--ce-muted);
+    cursor: pointer;
+}
+
+.ce-share-btn:hover,
+.ce-share-btn.is-copied {
+    border-color: var(--ce-muted);
+    color: var(--ce-ink);
+    opacity: 1;
+}
+
+.ce-share-btn svg {
+    width: 17px;
+    height: 17px;
+}
+
+/* The rail: fixed to the left edge, vertically centred; only where it can't touch the text */
+.ce-share.is-rail {
+    position: fixed;
+    top: 50%;
+    left: max(16px, calc((100vw - 1040px) / 2 - 104px));
+    z-index: 40;
+    flex-direction: column;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 1279px) {
+    .ce-share.is-rail {
+        display: none;
+    }
+}
+
+/* Floating "~/ce | Subscribe" pill, bottom-right: the header button's style, rounded */
+.ce-pill {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    z-index: 45;
+    display: inline-flex;
+    gap: 10px;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 18px;
+    background: var(--ce-btn-bg);
+    border-radius: 999px;
+    color: var(--ce-btn-ink);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: 0 4px 16px rgb(0 0 0 / 0.16);
+}
+
+.ce-pill:hover {
+    opacity: 0.9;
+}
+
+.ce-pill-mark {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.ce-pill-rule {
+    width: 1px;
+    height: 14px;
+    background: currentColor;
+    opacity: 0.35;
+}
+
+/* Pointless on the page it links to */
+.page-subscribe .ce-pill {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .ce-pill {
+        right: 16px;
+        bottom: 16px;
+    }
+}
+
 /* 10. Lists: home, archive, series page, tag page
 /* ---------------------------------------------------------- */
 

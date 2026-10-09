@@ -7,6 +7,8 @@
 {{#post}}
 
 <main class="ce-main">
+    {{> "ce/share" style="rail"}}
+
     <div class="ce-post-layout">
 
         <article class="ce-article {{post_class}}">
@@ -40,6 +42,8 @@
             <section class="gh-content ce-content">
                 {{content}}
             </section>
+
+            {{> "ce/share" style="row"}}
 
             {{!-- About the author --}}
             {{#foreach authors}}

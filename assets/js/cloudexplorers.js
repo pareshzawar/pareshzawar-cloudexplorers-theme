@@ -3,6 +3,7 @@
    1. light/dark toggle          4. code blocks: header, line numbers, copy, string tint
    2. "On this page" contents    5. series list: mark the post being read
    3. reading progress bar       6. "/" opens search
+                                 7. "Copy link" share buttons
    Bundled into assets/built/source.js together with Source's scripts. */
 (function () {
     'use strict';
@@ -161,6 +162,23 @@
         });
     }
 
+    /* 7. "Copy link" share buttons: copy the post URL and confirm on the button */
+    function initCopyLinks() {
+        document.querySelectorAll('.ce-copy-link').forEach(function (button) {
+            button.addEventListener('click', function () {
+                if (!navigator.clipboard) return; // very old browsers: the other share links still work
+                navigator.clipboard.writeText(button.dataset.url).then(function () {
+                    button.classList.add('is-copied');
+                    button.setAttribute('aria-label', 'Link copied');
+                    setTimeout(function () {
+                        button.classList.remove('is-copied');
+                        button.setAttribute('aria-label', 'Copy link');
+                    }, 2000);
+                });
+            });
+        });
+    }
+
     function init() {
         initThemeToggle();
         initToc();
@@ -168,6 +186,7 @@
         initCode();
         initSeries();
         initSearchKey();
+        initCopyLinks();
     }
 
     if (document.readyState === 'loading') {
