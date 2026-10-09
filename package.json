@@ -109,6 +109,18 @@
                 "default": true,
                 "group": "post",
                 "description": "Series, read time, date and author at the top of posts"
+            },
+            "hero_headline": {
+                "type": "text",
+                "default": "Real-world Oracle Cloud, from landing zones to AI.",
+                "group": "homepage",
+                "description": "Big headline at the top of the homepage"
+            },
+            "hero_byline": {
+                "type": "text",
+                "default": "Oracle Cloud Architect · 25 Oracle certifications",
+                "group": "homepage",
+                "description": "Line under your name in the homepage intro"
             }
         }
     }
