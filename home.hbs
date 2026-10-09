@@ -1,6 +1,7 @@
 {{!< default}}
 {{!-- Homepage: a shaded intro band (site title + description from Ghost Admin > General),
-      kept visually separate from the posts below it, then the 12 newest posts.
+      kept visually separate from the posts below it, then the newest post as a big tile
+      and the next 11 as small tiles.
       12 = posts_per_page, so /page/2/ continues exactly where this page stops. --}}
 
 <section class="ce-hero">
@@ -13,17 +14,27 @@
 
 <main class="ce-main">
     <div class="ce-list-page">
-        <h2 class="ce-label ce-list-label">Latest posts</h2>
-        <div class="ce-rows">
-            {{#get "posts" include="tags" limit="12" as |recent|}}
-                {{#foreach recent}}
-                    {{> "ce/post-row"}}
-                {{/foreach}}
-                {{#match recent.length ">=" 12}}
-                    <a class="ce-more" href="{{@site.url}}/page/2/">Older posts &rarr;</a>
-                {{/match}}
-            {{/get}}
-        </div>
+        {{#get "posts" include="tags" limit="12" as |recent|}}
+            {{!-- Newest post: the big featured tile --}}
+            <h2 class="ce-label ce-list-label">Latest</h2>
+            {{#foreach recent limit="1"}}
+                {{> "ce/post-tile" featured=true}}
+            {{/foreach}}
+
+            {{!-- Everything after it: small tiles in a grid --}}
+            {{#match recent.length ">" 1}}
+                <h2 class="ce-label ce-list-label">Earlier posts</h2>
+                <div class="ce-tiles">
+                    {{#foreach recent from="2"}}
+                        {{> "ce/post-tile"}}
+                    {{/foreach}}
+                </div>
+            {{/match}}
+
+            {{#match recent.length ">=" 12}}
+                <a class="ce-more" href="{{@site.url}}/page/2/">Older posts &rarr;</a>
+            {{/match}}
+        {{/get}}
 
         {{> "ce/subscribe-box"}}
     </div>

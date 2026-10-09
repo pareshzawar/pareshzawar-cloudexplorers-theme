@@ -1,0 +1,10 @@
+{{!-- Overrides Ghost's template for the {{navigation}} helper (menu from Ghost Admin > Navigation).
+      Same markup as Ghost's default, except a "Series" item is skipped: series are reached from
+      each post (sidebar list, "Series index" link) rather than from the main menu. --}}
+<ul class="nav">
+    {{#foreach navigation}}
+        {{#match slug "!=" "series"}}
+            <li class="nav-{{slug}}{{#if current}} nav-current{{/if}}"><a href="{{url absolute="true"}}">{{label}}</a></li>
+        {{/match}}
+    {{/foreach}}
+</ul>

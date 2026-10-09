@@ -18,8 +18,8 @@ light and dark. Built for **Ghost 6**.
 | `default.hbs` | Page frame: fonts, light/dark chosen before first paint, GoatCounter |
 | `post.hbs` | Article + sidebar ("On this page", the series' posts), author, series navigation, subscribe box |
 | `page.hbs` | Pages (About, Subscribe), ending with the subscribe box |
-| `home.hbs`, `index.hbs`, `tag.hbs`, `author.hbs` | Homepage (intro band + posts with thumbnails), older posts, series index (tag page, oldest first), author page |
-| `partials/ce/` | Header, footer, post row, subscribe box, series lists, pagination |
+| `home.hbs`, `index.hbs`, `tag.hbs`, `author.hbs` | Homepage (intro band, newest post as a big tile, older posts as small tiles), older posts, series index (tag page, oldest first), author page |
+| `partials/ce/`, `partials/navigation.hbs` | Header, footer, post tiles/rows, subscribe box, series lists, pagination; the menu skips any "Series" item |
 
 ## Series
 

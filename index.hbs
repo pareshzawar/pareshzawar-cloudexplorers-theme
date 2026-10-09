@@ -1,5 +1,5 @@
 {{!< default}}
-{{!-- All posts, page 2 onwards (the homepage is page 1): the same list as the homepage --}}
+{{!-- All posts, page 2 onwards (the homepage is page 1): the same small tiles as the homepage --}}
 
 <main class="ce-main">
     <div class="ce-list-page">
@@ -8,9 +8,9 @@
             <h1 class="ce-article-title">All posts</h1>
         </header>
 
-        <div class="ce-rows">
+        <div class="ce-tiles">
             {{#foreach posts}}
-                {{> "ce/post-row"}}
+                {{> "ce/post-tile"}}
             {{/foreach}}
         </div>
 

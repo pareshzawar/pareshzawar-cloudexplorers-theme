@@ -1158,6 +1158,147 @@ a.ce-meta-strong:hover {
     font-weight: 500;
 }
 
+/* Homepage and "All posts": tiles, so the wider 1040px column (same as articles) */
+:is(.home-template, .paged) .ce-list-page,
+.home-template .ce-hero-inner {
+    max-width: 1040px;
+}
+
+.ce-list-label + .ce-tile,
+.ce-list-label + .ce-tiles {
+    margin-top: 24px;
+}
+
+.ce-tile + .ce-list-label,
+.ce-tiles + .ce-list-label {
+    margin-top: 56px;
+}
+
+/* A tile: bordered card, image then text; the whole card lifts its border on hover */
+.ce-tile {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--ce-bg);
+    border: 1px solid var(--ce-rule);
+    border-radius: 10px;
+    transition: border-color 0.15s;
+}
+
+.ce-tile:hover {
+    border-color: var(--ce-muted);
+}
+
+.ce-tile-image img {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--ce-surface);
+    border-bottom: 1px solid var(--ce-rule);
+}
+
+.ce-tile-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 18px 20px 22px;
+}
+
+.ce-tile-title {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+.ce-tile-title a {
+    color: var(--ce-ink);
+    text-decoration: none;
+}
+
+/* The title link covers the whole tile, so anywhere on the card opens the post */
+.ce-tile {
+    position: relative;
+}
+
+.ce-tile-title a::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+}
+
+.ce-tile .ce-meta-strong {
+    position: relative; /* keeps the series link clickable above the card link */
+    z-index: 1;
+}
+
+.ce-tile:hover .ce-tile-title a {
+    color: var(--ce-link);
+}
+
+.ce-tile-excerpt {
+    margin: 0;
+    color: var(--ce-muted);
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+/* Small tiles: tighter meta line so series / read time / date usually fit on one line */
+.ce-tile:not(.is-featured) .ce-meta {
+    gap: 2px 10px;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+}
+
+/* Small tiles: 3 across on desktop, 2 on tablets, 1 on phones */
+.ce-tiles {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+@media (max-width: 960px) {
+    .ce-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .ce-tiles {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Featured (newest) tile: large image beside large text on wide screens */
+.ce-tile.is-featured .ce-tile-title {
+    font-size: clamp(24px, 3vw, 32px);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+@media (min-width: 801px) {
+    .ce-tile.is-featured:not(.no-image) {
+        display: grid;
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    }
+
+    .ce-tile.is-featured .ce-tile-image img {
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 300px;
+        border-right: 1px solid var(--ce-rule);
+        border-bottom: 0;
+    }
+
+    .ce-tile.is-featured .ce-tile-body {
+        justify-content: center;
+        gap: 14px;
+        padding: 32px;
+    }
+}
+
 /* 10. Lists: home, archive, tag and author pages
 /* ---------------------------------------------------------- */
 

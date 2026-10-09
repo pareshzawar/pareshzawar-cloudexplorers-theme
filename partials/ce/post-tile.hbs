@@ -1,0 +1,30 @@
+{{!-- A post as a tile on the homepage and "All posts" pages.
+      featured=true: the big tile for the newest post (image beside the text on wide screens).
+      Otherwise a small tile: image on top, then series / read time / date and the title.
+      Expects a post as its context. --}}
+<article class="ce-tile{{#if featured}} is-featured{{/if}}{{#unless feature_image}} no-image{{/unless}}">
+    {{#if feature_image}}
+        <a class="ce-tile-image" href="{{url}}" tabindex="-1" aria-hidden="true">
+            <img srcset="{{img_url feature_image size="s" format="webp"}} 320w,
+                         {{img_url feature_image size="m" format="webp"}} 600w,
+                         {{img_url feature_image size="l" format="webp"}} 960w"
+                 sizes="{{#if featured}}(max-width: 800px) 100vw, 560px{{else}}(max-width: 600px) 100vw, 320px{{/if}}"
+                 src="{{img_url feature_image size="m"}}" alt="" {{#unless featured}}loading="lazy"{{/unless}}>
+        </a>
+    {{/if}}
+    <div class="ce-tile-body">
+        <p class="ce-meta">
+            {{#if primary_tag}}<a class="ce-meta-strong" href="{{primary_tag.url}}">{{primary_tag.name}}</a><span aria-hidden="true">/</span>{{/if}}
+            {{#if reading_time}}<span>{{reading_time minute="1 min read" minutes="% min read"}}</span><span aria-hidden="true">/</span>{{/if}}
+            <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time>
+        </p>
+        <h2 class="ce-tile-title"><a href="{{url}}">{{title}}</a></h2>
+        {{#if featured}}
+            {{#if custom_excerpt}}
+                <p class="ce-tile-excerpt">{{custom_excerpt}}</p>
+            {{else if excerpt}}
+                <p class="ce-tile-excerpt">{{excerpt words="40"}}</p>
+            {{/if}}
+        {{/if}}
+    </div>
+</article>
