@@ -1,1410 +1,1276 @@
-/* Cloud Explorers layer on top of Source
+/* Cloud Explorers: "B · Notebook" design
 /* ------------------------------------------------------------
-Loaded after Source's screen.css. Source does the layout; this file
-only sets colours, the terminal look and our extra components.
+Loaded after Source's screen.css (which still styles Ghost's cards,
+the image lightbox and search). Everything visible is defined here.
 
-1. Palettes          (the only place colours are defined)
-2. Palette -> Source (feeds the palette into Source's own variables)
-3. Page backgrounds
-4. Header: logo, Series dropdown, theme toggle
-5. Homepage feed
-6. Posts: header, reading pane, table of contents, share row
-7. About / Subscribe pages
-8. Series page
-9. Footer
-10. Floating bits: side panel, subscribe pill
-11. Reduced motion
+Design rules (from the Claude Design canvas):
+- greyscale only; the single colour is the link colour
+- code uses two muted tones (text + strings), no rainbow highlighting
+- every text colour has at least 5:1 contrast
+- no gradients, glows or purple
 
-Adding a palette: copy a block in section 1, give it a new
-data-theme name, and add that name to the inline script in
-default.hbs (and the "color_theme" options in package.json).
+1. Palettes (light, dark)       6. Post content
+2. Base                         7. Code blocks
+3. Header                       8. Sidebar: contents + series
+4. Page layouts                 9. Author, post navigation, subscribe
+5. Article header               10. Lists (home, archive, series, tag)
+                                11. Ghost cards + About card
+                                12. Footer, focus, reduced motion
 */
 
 /* 1. Palettes
 /* ---------------------------------------------------------- */
 
-/* :root[data-theme] (two-part selector) on purpose: it outranks Source's
-   ":root.has-light-text" and Ghost's injected ":root { --ghost-accent-color }". */
-:root[data-theme="terminal"] {
-    color-scheme: dark;                /* native scrollbars/controls drawn dark */
-    --ce-accent: #00c8a0;              /* teal: links, prompts, highlights */
-    --ce-accent-hover: #00e5b8;
-    --ce-burgundy: #b01e3a;            /* hover fills */
-    --ce-bg: #062b20;                  /* page background (dark green) */
-    --ce-bg-home: #021c2e;             /* homepage + post header background (dark blue) */
-    --ce-panel: #4a1020;               /* header + footer */
-    --ce-card: #661830;                /* menus, buttons, cards on dark */
-    --ce-border: #962848;
-    --ce-text: #fff0f3;
-    --ce-text-muted: #e8a0b0;
-    --ce-text-dim: #e07a96;            /* small print; >= 4.5:1 on every dark background */
-    --ce-glow-low: rgb(0 200 160 / 0.10);
-    --ce-glow-high: rgb(0 200 160 / 0.24);
-    --ce-pattern-dots: rgb(0 242 255 / 0.09);   /* small dots on blue */
-    --ce-pattern-circles: rgb(0 255 160 / 0.04); /* large circles on green */
-    --ce-feed-card: #062b20;
-    /* Reading pane: dark like the page, so there is no bright block to squint at.
-       Soft off-white on charcoal-green rather than pure white on black (less glare/halo). */
-    --ce-reading-bg: #0f211c;
-    --ce-reading-text: #d9e6e1;        /* 13:1 */
-    --ce-reading-heading: #f2f7f5;
-    --ce-reading-muted: #9fb8ae;       /* captions, secondary text: 7.9:1 */
-    --ce-reading-link: #2ee0b8;        /* 9.9:1 */
-    --ce-reading-link-hover: #ff8fa8;
-    --ce-reading-rule: rgb(255 255 255 / 0.10); /* hairlines inside the pane */
-    --ce-reading-wash: rgb(255 255 255 / 0.05); /* faint fills (callouts, toggles) */
-    --ce-reading-border: #1d3a31;
-    --ce-code-bg: #08150f;             /* a step darker than the pane so code stands out */
-    --ce-code-text: #e0f5ee;
-    --ce-toc-bg: rgb(5 31 26 / 0.85);
-    --ce-toc-border: #0f5038;
-}
-
+/* :root[data-theme=…] outranks Source's ":root.has-light-text" and Ghost's injected
+   ":root { --ghost-accent-color }", so these values always win. */
 :root[data-theme="light"] {
     color-scheme: light;
-    --ce-accent: #00806a;              /* darker teal so it passes contrast on white */
-    --ce-accent-hover: #006b59;
-    --ce-burgundy: #b01e3a;
-    --ce-bg: #f3f6f5;
-    --ce-bg-home: #eef4f7;
-    --ce-panel: #ffffff;
-    --ce-card: #ffffff;
-    --ce-border: #e3c6cf;
-    --ce-text: #0a241c;
-    --ce-text-muted: #3d5a50;
-    --ce-text-dim: #8a3a50;
-    --ce-glow-low: rgb(0 128 106 / 0.08);
-    --ce-glow-high: rgb(0 128 106 / 0.18);
-    --ce-pattern-dots: rgb(0 90 130 / 0.10);
-    --ce-pattern-circles: rgb(0 128 106 / 0.05);
-    --ce-feed-card: #ffffff;
-    --ce-reading-bg: #ffffff;
-    --ce-reading-text: #0a241c;
-    --ce-reading-heading: #000;
-    --ce-reading-muted: #4d6a60;       /* 5.9:1 */
-    --ce-reading-link: #00806a;        /* 4.9:1 (the bright teal was only 2:1 on white) */
-    --ce-reading-link-hover: #b01e3a;
-    --ce-reading-rule: rgb(0 0 0 / 0.08);
-    --ce-reading-wash: rgb(0 0 0 / 0.05);
-    --ce-reading-border: #d4e5df;
-    --ce-code-bg: #051f1a;
-    --ce-code-text: #e0f5ee;
-    --ce-toc-bg: #ffffff;
-    --ce-toc-border: #cfe3dc;
+    --ce-bg: #fcfcfd;
+    --ce-surface: #f3f4f6;   /* code, callouts, search box, avatars */
+    --ce-ink: #15171c;       /* headings, strong text, buttons */
+    --ce-body: #2a2e36;      /* paragraphs */
+    --ce-muted: #5c626e;     /* labels, meta, secondary text */
+    --ce-rule: #e2e4e8;      /* hairlines and borders */
+    --ce-link: #326a54;      /* the only colour on the page */
+    --ce-str: #795d3c;       /* strings in code */
+    --ce-btn-bg: #15171c;
+    --ce-btn-ink: #fcfcfd;
 }
 
-/* 2. Palette -> Source
-/* ---------------------------------------------------------- */
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --ce-bg: #121418;
+    --ce-surface: #1a1d22;
+    --ce-ink: #e8eaed;
+    --ce-body: #c8ccd2;
+    --ce-muted: #8d94a0;
+    --ce-rule: #2a2e35;
+    --ce-link: #86c0a7;
+    --ce-str: #d1ba9b;
+    --ce-btn-bg: #e8eaed;
+    --ce-btn-ink: #121418;
+}
 
-/* Source styles everything through these variables, so setting them
-   recolours the whole theme without overriding individual rules. */
+/* Feed the palette into Source's variables, so Ghost cards, forms and search follow it */
 :root[data-theme] {
     --background-color: var(--ce-bg);
-    --ghost-accent-color: var(--ce-accent);
-    --color-darker-gray: var(--ce-text);
-    --color-primary-text: var(--ce-text);
-    --color-secondary-text: var(--ce-text-muted);
-    --color-border: var(--ce-border);
-    scroll-behavior: smooth; /* TOC links glide instead of jumping */
+    --ghost-accent-color: var(--ce-ink);
+    --color-darker-gray: var(--ce-ink);
+    --color-primary-text: var(--ce-body);
+    --color-secondary-text: var(--ce-muted);
+    --color-border: var(--ce-rule);
+    --color-lighter-gray: var(--ce-surface);
+    --font-sans: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --ce-gutter: clamp(16px, 4vw, 40px);
+    scroll-behavior: smooth;
+    scroll-padding-top: 88px; /* anchors land below the sticky header (desktop) */
 }
 
-/* Header and footer sit on the panel colour; Source also uses
-   --background-color for the mobile menu overlay, so it follows. */
-.gh-navigation,
-.gh-footer {
-    --background-color: var(--ce-panel);
-    background-color: var(--ce-panel);
-}
-
-/* The reading pane has its own colours per palette (dark in Terminal, white in Light).
-   Feeding them into Source's variables keeps Ghost cards (callouts, toggles,
-   tables, captions) readable inside it too. */
-.gh-content {
-    --color-darker-gray: var(--ce-reading-text);
-    --color-primary-text: var(--ce-reading-text);
-    --color-secondary-text: var(--ce-reading-muted);
-    --color-border: var(--ce-reading-rule);
-    --color-lighter-gray: var(--ce-reading-wash);
-}
-
-/* 3. Page backgrounds
+/* 2. Base
 /* ---------------------------------------------------------- */
 
 body {
-    background-image: radial-gradient(circle, var(--ce-pattern-circles) 18px, transparent 19px);
-    background-size: 80px 80px;
+    background: var(--ce-bg);
+    color: var(--ce-body);
+    font-family: var(--font-sans);
+    font-size: 18px;
+    line-height: 1.75;
 }
 
-/* Posts and pages: plain background so nothing competes with the text
-   (the dotted band behind the post header stays) */
-body:is(.post-template, .page-template) {
-    background-image: none;
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sans);
 }
 
-body.home-template {
-    background-color: var(--ce-bg-home);
-    background-image: radial-gradient(var(--ce-pattern-dots) 1.5px, transparent 1.5px);
-    background-size: 20px 20px;
-}
-
-/* 4. Header
-/* ---------------------------------------------------------- */
-
-.gh-navigation {
-    border-bottom: 1px solid var(--ce-border);
-}
-
-.gh-navigation a:not(.gh-button):hover {
-    color: var(--ce-accent);
-    opacity: 1;
-}
-
-/* "~/ce" text logo with a blinking cursor */
-.ce-logo {
-    display: inline-flex;
-    align-items: baseline;
+/* Small monospace labels: "ON THIS PAGE", "SERIES · …", "LATEST" */
+.ce-label {
+    margin: 0;
+    color: var(--ce-muted);
     font-family: var(--font-mono);
-    font-size: 2rem;
-    font-weight: 700;
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
 
-.ce-logo-tilde {
-    color: var(--ce-accent);
-}
-
-.ce-logo-cursor {
-    display: inline-block;
-    width: 2px;
-    height: 1em;
-    margin-left: 2px;
-    background: var(--ce-accent);
-    vertical-align: text-bottom;
-    animation: ce-blink 1s step-end 6; /* ~6s of blinking, then a steady cursor */
-}
-
-@keyframes ce-blink {
-    50% { opacity: 0; }
-}
-
-/* Series dropdown (markup from partials/navigation.hbs).
-   Opens on hover or keyboard focus; no JavaScript involved. */
-.ce-series-nav {
-    position: relative;
-}
-
-.ce-series-toggle::after {
-    content: "⌄";
-    margin-left: 4px;
-    color: var(--ce-accent);
-    font-family: var(--font-mono);
-}
-
-.ce-series-menu {
-    position: absolute;
-    top: calc(100% + 14px);
-    left: 0;
-    z-index: 100;
-    display: grid;
-    min-width: 320px;
-    padding: 10px;
-    background: var(--ce-card);
-    border: 1px solid var(--ce-border);
-    border-radius: 8px;
-    box-shadow: 0 18px 45px rgb(0 0 0 / 0.32);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(-6px);
-    transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s;
-}
-
-/* Invisible bridge over the 14px gap, so moving the mouse down doesn't close the menu */
-.ce-series-menu::before {
-    position: absolute;
-    inset: -14px 0 auto;
-    height: 14px;
-    content: "";
-}
-
-.ce-series-nav:is(:hover, :focus-within) .ce-series-menu {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-}
-
-.ce-series-menu a {
-    padding: 10px 12px;
-    border-radius: 6px;
-    font-family: var(--font-mono);
-    font-size: 1.3rem;
-    line-height: 1.35;
-    white-space: nowrap;
-}
-
-.ce-series-menu a:is(:hover, :focus) {
-    background: var(--ce-glow-low);
-}
-
-/* Inside the mobile menu the series are listed inline under "Series", centred like the other items */
-@media (max-width: 767px) {
-    .ce-series-nav {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .ce-series-menu {
-        position: static;
-        justify-items: center;
-        min-width: 0;
-        padding: 8px 0 0;
-        background: none;
-        border: 0;
-        box-shadow: none;
-        opacity: 1;
-        visibility: visible;
-        transform: none;
-    }
-
-    .ce-series-menu a {
-        padding: 6px 0;
-        white-space: normal;
-    }
-}
-
-.ce-theme-toggle svg {
-    width: 20px;
-    height: 20px;
-}
-
-/* 5. Homepage (home.hbs)
-/* ---------------------------------------------------------- */
-
-/* Title band: dotted blue, with "Follow: RSS" on the right */
-.ce-hero {
-    padding-block: 64px 120px; /* extra bottom space for the sheet to overlap */
-    background-color: var(--ce-bg-home);
-    background-image: radial-gradient(var(--ce-pattern-dots) 1.5px, transparent 1.5px);
-    background-size: 20px 20px;
-}
-
-.ce-hero-inner {
+/* "OCI IN PRACTICE / 13 MIN READ / 8 OCT 2026" */
+.ce-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 24px;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.ce-hero-prompt {
-    margin-bottom: 12px;
-    color: var(--ce-accent);
+    gap: 4px 14px;
+    margin: 0;
+    color: var(--ce-muted);
     font-family: var(--font-mono);
-    font-size: 1.4rem;
-}
-
-.ce-hero-title {
-    max-width: 22ch;
-    font-family: var(--font-mono);
-    font-size: clamp(3rem, 2rem + 2.5vw, 4.8rem);
-    letter-spacing: -0.02em;
-}
-
-.ce-hero-desc {
-    max-width: 60ch;
-    margin-top: 14px;
-    color: var(--ce-text-muted);
-    font-size: 1.8rem;
-}
-
-.ce-follow {
-    display: inline-flex;
-    gap: 10px;
-    align-items: center;
-    font-family: var(--font-mono);
-    font-size: 1.8rem;
-    font-weight: 700;
-}
-
-.ce-follow svg {
-    width: 26px;
-    height: 26px;
-    fill: currentColor;
-}
-
-/* The raised "sheet" holding the posts, overlapping the band */
-.ce-sheet > .gh-inner {
-    margin-top: -80px;
-    padding: clamp(20px, 4vw, 48px);
-    background: var(--ce-reading-bg);
-    color: var(--ce-reading-text);
-    border: 1px solid var(--ce-reading-border);
-    border-radius: 12px;
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.2);
-}
-
-/* Lead post (left, ~2/3) + two side posts (right) */
-.ce-top {
-    display: grid;
-    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
-    gap: 40px;
-}
-
-.ce-top-side {
-    display: grid;
-    gap: 32px;
-    align-content: start;
-}
-
-.ce-card-link {
-    display: block;
-    color: inherit;
-}
-
-.ce-card-link:hover {
-    opacity: 1;
-}
-
-.ce-card-link:hover :is(.ce-lead-title, .ce-card-title) {
-    color: var(--ce-reading-link);
-}
-
-.ce-lead-image,
-.ce-card-image {
-    width: 100%;
-    object-fit: cover;
-    border-radius: 8px;
-}
-
-.ce-lead-image {
-    aspect-ratio: 16 / 9;
-    margin-bottom: 20px;
-}
-
-.ce-card-tag {
-    margin-bottom: 8px;
-    color: var(--ce-reading-link);
-    font-family: var(--font-mono);
-    font-size: 1.2rem;
+    font-size: 13px;
+    line-height: 1.5;
     letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
-.ce-lead-title {
-    font-family: var(--font-mono);
-    font-size: clamp(2.4rem, 1.8rem + 1.2vw, 3.2rem);
-    line-height: 1.2;
-    color: var(--ce-reading-heading);
-    transition: color 0.15s;
-}
-
-.ce-card-excerpt {
-    margin-top: 12px;
-    color: var(--ce-reading-muted);
-    font-size: 1.7rem;
-    line-height: 1.6;
-}
-
-.ce-card-meta {
-    margin-top: 12px;
-    color: var(--ce-reading-muted);
-    font-size: 1.4rem;
-}
-
-.ce-sep {
-    margin-inline: 8px;
-    opacity: 0.6;
-}
-
-/* Side card: image on the left, text on the right */
-.ce-card .ce-card-link {
-    display: grid;
-    grid-template-columns: 42% minmax(0, 1fr);
-    gap: 16px;
-    align-items: start;
-}
-
-.ce-card .ce-card-image {
-    aspect-ratio: 16 / 10;
-}
-
-.ce-card-title {
-    font-family: var(--font-mono);
-    font-size: 1.8rem;
-    line-height: 1.3;
-    color: var(--ce-reading-heading);
-    transition: color 0.15s;
-}
-
-/* Grid card: image on top */
-.ce-card.is-stacked .ce-card-link {
-    grid-template-columns: minmax(0, 1fr);
-}
-
-.ce-feed-title {
-    margin: 56px 0 28px;
-    padding-bottom: 14px;
-    border-bottom: 1px dashed var(--ce-reading-rule);
-    color: var(--ce-reading-link);
-    font-family: var(--font-mono);
-    font-size: 1.4rem;
+.ce-meta-strong {
+    color: var(--ce-ink);
     font-weight: 500;
+    text-decoration: none;
 }
 
-.ce-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
-    gap: 40px 32px;
+a.ce-meta-strong:hover {
+    color: var(--ce-link);
+    opacity: 1;
 }
 
-.ce-more {
-    display: inline-block;
-    margin-top: 40px;
-    color: var(--ce-reading-link);
-    font-family: var(--font-mono);
-    font-size: 1.5rem;
+/* Solid dark button (light theme) / solid light button (dark theme) */
+.ce-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 16px;
+    background: var(--ce-btn-bg);
+    border: 0;
+    border-radius: 6px;
+    color: var(--ce-btn-ink);
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
 }
 
-@media (max-width: 900px) {
-    .ce-top {
-        grid-template-columns: minmax(0, 1fr);
-    }
+.ce-btn:hover {
+    opacity: 0.88;
 }
 
-@media (max-width: 480px) {
-    /* Side cards stack too on small phones */
-    .ce-card .ce-card-link {
-        grid-template-columns: minmax(0, 1fr);
-    }
-}
-
-/* 6. Posts
+/* 3. Header
 /* ---------------------------------------------------------- */
 
-/* Header with a full-width dotted blue band behind it.
-   The band is a pseudo-element, so the header itself keeps Source's layout. */
-:is(.post-template, .page-template) .gh-article-header {
-    position: relative;
-    isolation: isolate;
-    margin-top: 0;
-    padding-block: 60px 32px;
+.ce-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--ce-bg);
+    border-bottom: 1px solid var(--ce-rule);
 }
 
-:is(.post-template, .page-template) .gh-article-header::before {
-    position: absolute;
-    inset: 0 auto 0 50%;
-    z-index: -1;
-    width: 100vw;
-    content: "";
-    transform: translateX(-50%);
-    background-color: var(--ce-bg-home);
-    background-image: radial-gradient(var(--ce-pattern-dots) 1.5px, transparent 1.5px);
-    background-size: 20px 20px;
-    border-block: 1px solid var(--ce-pattern-dots);
-    box-shadow: 0 10px 30px rgb(0 0 0 / 0.2);
+.ce-header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 32px;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 12px var(--ce-gutter);
 }
 
-/* Article header: tags, title, "date | N min read", authors */
-.ce-article-tags {
-    margin-bottom: 14px;
-    font-size: 1.4rem;
+/* "~/ce | Cloud Explorers" */
+.ce-brand {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    min-height: 44px;
+    color: var(--ce-ink);
+    line-height: 1.2;
+    text-decoration: none;
+}
+
+.ce-brand:hover {
+    opacity: 1;
+}
+
+.ce-brand-mark {
+    font-family: var(--font-mono);
+    font-size: 17px;
     font-weight: 600;
 }
 
-.ce-article-tags a {
-    color: var(--ce-accent-hover);
+.ce-brand-rule {
+    width: 1px;
+    height: 18px;
+    background: var(--ce-rule);
 }
 
-.ce-article-date {
-    margin-top: 22px;
-    color: var(--ce-text-muted);
-    font-size: 1.6rem;
+.ce-brand-name {
+    font-size: 17px;
+    font-weight: 500;
 }
 
-.ce-article-authors {
-    display: grid;
-    gap: 12px;
-    margin: 18px 0 0;
+.ce-header-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 22px;
+    align-items: center;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* Ghost's {{navigation}} output: <ul class="nav"><li class="nav-…"><a> */
+.ce-nav .nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 22px;
+    margin: 0;
     padding: 0;
     list-style: none;
 }
 
-.ce-article-authors li {
+.ce-nav a {
+    display: inline-block;
+    padding: 12px 0;
+    color: var(--ce-body);
+    text-decoration: none;
+}
+
+.ce-nav a:hover,
+.ce-nav .nav-current a {
+    color: var(--ce-ink);
+    opacity: 1;
+}
+
+.ce-nav .nav-current a {
+    font-weight: 500;
+}
+
+/* Search box-style button with the "/" shortcut hint */
+.ce-search {
     display: flex;
-    gap: 14px;
+    gap: 10px;
     align-items: center;
+    min-height: 44px;
+    padding: 0 8px 0 12px;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 6px;
+    color: var(--ce-muted);
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
 }
 
+.ce-search kbd {
+    min-width: 20px;
+    padding: 1px 6px;
+    background: var(--ce-bg);
+    border: 1px solid var(--ce-rule);
+    border-radius: 4px;
+    color: var(--ce-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Moon in light theme (switch to dark), sun in dark theme (switch to light) */
+.ce-theme-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    color: var(--ce-body);
+    cursor: pointer;
+}
+
+[data-theme="light"] .ce-icon-sun,
+[data-theme="dark"] .ce-icon-moon {
+    display: none;
+}
+
+/* Reading progress (posts): a 2px line that fills left to right */
+.ce-progress {
+    height: 2px;
+    margin-bottom: -1px; /* sits on top of the header's bottom border */
+}
+
+.ce-progress-bar {
+    height: 100%;
+    background: var(--ce-ink);
+    transform: scaleX(0);
+    transform-origin: left center;
+}
+
+/* Phones: the header wraps to two rows, so it scrolls away with the page instead of
+   staying pinned (it would cover a fifth of the screen); search becomes an icon button */
+@media (max-width: 700px) {
+    .ce-header {
+        position: static;
+    }
+
+    .ce-header-inner {
+        gap: 0 16px;
+        padding-block: 8px;
+    }
+
+    .ce-search span,
+    .ce-search kbd {
+        display: none;
+    }
+
+    .ce-search {
+        width: 44px;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .ce-header-actions {
+        gap: 4px 16px;
+    }
+}
+
+/* 4. Page layouts
+/* ---------------------------------------------------------- */
+
+.ce-main {
+    flex: 1 0 auto;
+    padding: clamp(40px, 7vw, 80px) var(--ce-gutter) 0;
+}
+
+/* Posts: article (up to 680px) + sidebar (220–260px); the sidebar wraps below on narrow screens */
+.ce-post-layout {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px 72px;
+    align-items: flex-start;
+    max-width: 1040px;
+    margin: 0 auto;
+}
+
+.ce-article {
+    flex: 999 1 560px;
+    min-width: 0;
+    max-width: 680px;
+}
+
+/* Pages (About, Subscribe): just the centred column */
+.ce-article.ce-page {
+    margin: 0 auto;
+}
+
+/* Lists: homepage, archive, series page, tag and author pages */
+.ce-list-page {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* 5. Article header
+/* ---------------------------------------------------------- */
+
+.ce-article-header,
+.ce-list-header {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 40px;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--ce-rule);
+}
+
+.ce-article-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-size: clamp(34px, 4.6vw, 46px);
+    font-weight: 600;
+    line-height: 1.14;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+}
+
+.ce-article-excerpt {
+    margin: 0;
+    color: var(--ce-muted);
+    font-size: 21px;
+    line-height: 1.55;
+    text-wrap: pretty;
+}
+
+.ce-byline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+.ce-byline-author {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    color: var(--ce-ink);
+    font-weight: 500;
+    text-decoration: none;
+}
+
+/* Square avatar: the author's photo, or an empty tile when there is none */
 .ce-avatar {
-    flex: none;
-    width: 48px;
-    height: 48px;
+    display: block;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
     overflow: hidden;
-    border-radius: 8px;
-    background: var(--ce-card);
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 6px;
 }
 
-.ce-avatar img,
-.ce-avatar svg {
+.ce-avatar img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
 .ce-avatar.is-large {
-    width: 96px;
-    height: 96px;
+    flex-basis: 52px;
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
 }
 
-.ce-author-name {
-    display: block;
-    color: var(--ce-accent);
+/* Feature image under the header */
+.ce-article .gh-article-image {
+    margin: 0 0 40px;
+}
+
+.ce-article .gh-article-image img {
+    width: 100%;
+    border-radius: 8px;
+}
+
+.ce-article .gh-article-image figcaption {
+    margin-top: 10px;
+    color: var(--ce-muted);
+    font-size: 14px;
+    text-align: center;
+}
+
+/* 6. Post content
+/* ---------------------------------------------------------- */
+
+.gh-content.ce-content {
+    color: var(--ce-body);
+    font-size: 18px;
+    line-height: 1.75;
+    letter-spacing: 0;
+    text-wrap: pretty;
+}
+
+.ce-content > * + * {
+    margin-top: 24px;
+}
+
+.ce-content a {
+    color: var(--ce-link);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+.ce-content a:hover {
+    text-decoration-thickness: 2px;
+    opacity: 1;
+}
+
+.ce-content :is(h2, h3, h4) {
+    color: var(--ce-ink);
+    font-family: var(--font-sans);
     font-weight: 600;
 }
 
-.ce-author-role {
-    display: block;
-    color: var(--ce-text-muted);
-    font-size: 1.4rem;
+.ce-content > h2 {
+    margin-top: 48px;
+    font-size: 27px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
 }
 
-/* Excerpt as an italic lead-in under a short centred divider, top of the reading pane */
-.gh-content > .ce-lead-in {
-    padding-top: 28px;
-    color: var(--ce-reading-muted);
-    font-size: 1.9rem;
-    font-style: italic;
-    background: linear-gradient(var(--ce-reading-rule), var(--ce-reading-rule)) top center / 120px 2px no-repeat;
+.ce-content > h3 {
+    margin-top: 36px;
+    font-size: 21px;
+    line-height: 1.4;
 }
 
-/* Article + sticky TOC side by side; the TOC column only exists when the TOC is shown */
-.ce-post-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 32px;
-    max-width: 1300px; /* pane (~980px) + gap + TOC (260px) */
-    margin: 0 auto;
-    padding: 0 var(--container-gap);
+.ce-content > h4 {
+    margin-top: 32px;
+    font-size: 18px;
 }
 
-.ce-post-layout:has(.ce-toc:not([hidden])) {
-    grid-template-columns: minmax(0, 1fr) 260px;
+/* "01  What you get…": section numbers on posts (added only when headings aren't numbered already) */
+.ce-content.is-numbered {
+    counter-reset: ce-section;
 }
 
-/* The reading pane (posts and every page).
-   Text: 18px, line height 1.7, 680px column (~80 characters per line in Inter;
-   wider than that and eyes lose their place going back to the next line).
-   Code, tables and images use Source's "wide" column, up to 880px
-   (--container-width), so long commands rarely need sideways scrolling.
-   Side spacing comes only from Source's own grid gutter (--container-gap),
-   so the pane has no horizontal padding of its own. */
-.ce-post-layout .gh-content,
-.page-template .gh-content {
-    --content-font-size: 1.8rem;
-    --content-width: 680px;
-    --container-width: 880px;
-    --container-gap: 40px;
-    padding: 40px 0;
-    background: var(--ce-reading-bg);
-    color: var(--ce-reading-text);
-    border: 1px solid var(--ce-reading-border);
-    border-radius: 12px;
-    box-shadow: 0 8px 30px rgb(0 0 0 / 0.15);
-    line-height: 1.7;
-}
-
-/* Pages have no TOC wrapper, so centre the pane as its own column */
-.page-template .gh-content {
-    width: min(960px, 100% - 32px);
-    margin-inline: auto;
-}
-
-/* Code blocks, tables and normal-width images break out into the wider column */
-:is(.ce-post-layout, .page-template) .gh-content > :where(pre, .kg-code-card, .gh-table, table, .kg-image-card:not(.kg-width-wide, .kg-width-full)) {
-    grid-column: wide;
-}
-
-.gh-content :is(h2, h3, h4) {
-    padding-left: 16px;
-    border-left: 4px solid var(--ce-accent);
-    color: var(--ce-reading-heading);
-}
-
-.gh-content strong {
-    color: var(--ce-reading-heading);
-}
-
-.gh-content a {
-    color: var(--ce-reading-link);
-    text-decoration: underline;
-    text-underline-offset: 0.15em;
-}
-
-.gh-content a:hover {
-    color: var(--ce-reading-link-hover);
-}
-
-/* Links inside bold text (e.g. "**[Kladen](…)**") keep the link colour, not the bold colour */
-.gh-content :is(strong, b) a {
-    color: var(--ce-reading-link);
-}
-
-.gh-content blockquote {
-    padding: 14px 20px;
-    background: var(--ce-glow-low);
-    border-left: 3px solid var(--ce-accent);
-    border-radius: 0 8px 8px 0;
-}
-
-/* Tables
-   Source forces a permanent scrollbar under every table; only show one when it scrolls.
-   Colours are forced (!important beats inline styles) because tables pasted as HTML
-   often carry colours picked for the old white pane, which vanish on the dark one. */
-.gh-content .gh-table {
-    overflow-x: auto;
-    scrollbar-color: var(--ce-reading-rule) transparent;
-}
-
-.gh-content table {
-    min-width: 100%;
-}
-
-.gh-content :is(th, td) {
-    color: var(--ce-reading-text) !important;
-    background-color: transparent !important;
-    border-color: var(--ce-reading-rule) !important;
-}
-
-.gh-content th {
-    color: var(--ce-reading-heading) !important;
-    background-color: var(--ce-reading-wash) !important;
-}
-
-/* Inline-coloured text inside cells (e.g. <span style="color:…">) follows the cell */
-.gh-content :is(th, td) :not(a) {
-    color: inherit !important;
-}
-
-.gh-content :is(th, td) a {
-    color: var(--ce-reading-link) !important;
-}
-
-.gh-content pre {
-    background: var(--ce-code-bg);
-    color: var(--ce-code-text);
-    border: 1px solid var(--ce-reading-border);
-    font-size: 1.5rem;
-    line-height: 1.6;
-}
-
-/* Table of contents (filled by cloudexplorers.js) */
-.ce-toc {
-    position: sticky;
-    top: 80px;
-    align-self: start;
-    max-height: calc(100vh - 100px);
-    overflow-y: auto;
-    padding: 16px;
-    background: var(--ce-toc-bg);
-    border: 1px solid var(--ce-toc-border);
-    border-radius: 8px;
-    scrollbar-width: thin;
-}
-
-.ce-toc-title {
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--ce-toc-border);
-    color: var(--ce-text-dim);
+.ce-content.is-numbered > h2::before {
+    margin-right: 14px;
+    color: var(--ce-muted);
     font-family: var(--font-mono);
-    font-size: 1rem;
-    letter-spacing: 0.12em;
+    font-size: 15px;
+    font-weight: 500;
+    content: counter(ce-section, decimal-leading-zero);
+    counter-increment: ce-section;
+}
+
+.ce-content strong {
+    color: var(--ce-ink);
+    font-weight: 600;
+}
+
+.ce-content :is(ul, ol) {
+    padding-left: 1.2em;
+}
+
+.ce-content li + li {
+    margin-top: 8px;
+}
+
+.ce-content blockquote {
+    padding-left: 20px;
+    border-left: 2px solid var(--ce-ink);
+    color: var(--ce-body);
+    font-style: normal;
+}
+
+.ce-content hr {
+    margin-block: 48px;
+    border: 0;
+    border-top: 1px solid var(--ce-rule);
+}
+
+/* Inline code: `terraform plan` */
+.ce-content :not(pre) > code {
+    padding: 2px 6px;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 4px;
+    color: var(--ce-ink);
+    font-family: var(--font-mono);
+    font-size: 0.84em;
+}
+
+.ce-content figure img {
+    border-radius: 8px;
+}
+
+.ce-content figcaption {
+    color: var(--ce-muted);
+    font-size: 14px;
+    line-height: 1.5;
+    text-align: center;
+}
+
+/* Tables. Colours are forced (!important beats inline styles) because tables pasted
+   as HTML often carry colours that don't work in one of the two themes. */
+.ce-content .gh-table {
+    overflow-x: auto;
+}
+
+.ce-content table {
+    min-width: 100%;
+    border-collapse: collapse;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.ce-content :is(th, td) {
+    padding: 10px 12px;
+    background-color: transparent !important;
+    border: 1px solid var(--ce-rule) !important;
+    color: var(--ce-body) !important;
+    text-align: left;
+    vertical-align: top;
+}
+
+.ce-content th {
+    background-color: var(--ce-surface) !important;
+    color: var(--ce-ink) !important;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
 }
 
-.ce-toc a {
-    display: block;
-    padding: 3px 0 3px 8px;
-    border-left: 2px solid transparent;
-    color: var(--ce-text-muted);
-    font-family: var(--font-mono);
-    font-size: 1.1rem;
-    line-height: 1.5;
-    transition: color 0.15s, border-color 0.15s;
+.ce-content :is(th, td) :not(a) {
+    color: inherit !important;
 }
 
-.ce-toc a.is-sub {
-    padding-left: 18px;
-    font-size: 1rem;
+.ce-content :is(th, td) a {
+    color: var(--ce-link) !important;
 }
 
-.ce-toc a:is(:hover, .is-active) {
-    color: var(--ce-accent);
-    border-left-color: var(--ce-accent);
+/* 7. Code blocks (header + line numbers are added by cloudexplorers.js)
+/* ---------------------------------------------------------- */
+
+.ce-code {
+    overflow: hidden;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 8px;
 }
 
-/* Tablets and small laptops: one column, TOC hidden until there's room beside the text */
-@media (max-width: 1100px) {
-    .ce-post-layout,
-    .ce-post-layout:has(.ce-toc:not([hidden])) {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .ce-toc {
-        display: none;
-    }
-}
-
-/* Phones: the pane goes edge to edge (no outer margin, side borders or rounded corners)
-   with a single 20px gutter, so the text gets ~90% of the screen width */
-@media (max-width: 767px) {
-    .ce-post-layout,
-    .ce-post-layout:has(.ce-toc:not([hidden])) {
-        padding: 0;
-    }
-
-    :is(.ce-post-layout, .page-template) .gh-content {
-        --container-gap: 20px;
-        width: 100%;
-        padding: 28px 0;
-        border-inline: 0;
-        border-radius: 0;
-        box-shadow: none;
-    }
-
-    /* Code blocks span the full screen width; text keeps its gutter */
-    :is(.ce-post-layout, .page-template) .gh-content > :is(pre, .kg-code-card) {
-        grid-column: full;
-        border-inline: 0;
-        border-radius: 0;
-    }
-}
-
-/* Share rows (partials/ce/share.hbs) */
-.ce-share {
+.ce-code-head {
     display: flex;
-    flex-wrap: wrap;
     gap: 12px;
     align-items: center;
-    padding-top: 24px;
-    border-top: 1px dashed var(--ce-border);
-}
-
-.ce-share-top {
-    margin-top: 32px;
-}
-
-.ce-share-bottom {
-    margin-top: 60px;
-}
-
-.ce-share-label {
-    margin-right: 12px;
-    color: var(--ce-text-dim);
+    justify-content: space-between;
+    padding: 2px 6px 2px 16px;
+    border-bottom: 1px solid var(--ce-rule);
+    color: var(--ce-muted);
     font-family: var(--font-mono);
-    font-size: 1.3rem;
-    letter-spacing: 0.12em;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
-.ce-share-box {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    padding: 0;
-    background: var(--ce-card);
+.ce-code-copy {
+    min-height: 44px;
+    padding: 0 10px;
+    background: transparent;
     border: 0;
-    border-radius: 8px;
-    color: var(--ce-text-muted);
+    border-radius: 6px;
+    color: var(--ce-body);
+    font: inherit;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s, transform 0.2s;
 }
 
-/* Bottom row sits on the light reading pane, so it needs its own colours */
-.gh-content .ce-share-box {
-    background: var(--ce-code-bg);
-    color: var(--ce-code-text);
-    text-decoration: none;
+.ce-code-copy:hover {
+    color: var(--ce-ink);
 }
 
-.ce-share-box:hover,
-.ce-share-box.is-copied {
-    background: var(--ce-burgundy);
-    color: #fff;
-    transform: translateY(-2px);
+.gh-content .ce-code pre,
+.gh-content pre {
+    margin: 0;
+    padding: 16px 20px 16px 6px;
+    overflow-x: auto;
+    background: transparent;
+    border-radius: 0;
+    color: var(--ce-ink);
+    font-family: var(--font-mono);
+    font-size: 14.5px;
+    line-height: 1.7;
 }
 
-.ce-share-box svg {
-    width: 18px;
-    height: 18px;
+/* A <pre> that hasn't been wrapped yet (no JavaScript) still gets a box */
+.gh-content > pre {
+    padding-left: 16px;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
+    border-radius: 8px;
 }
 
-/* Share rail: sticky buttons on the left edge of posts */
-.ce-share-rail {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    z-index: 900;
+.ce-code code {
+    display: block;
+    font: inherit;
+    counter-reset: ce-line;
+}
+
+/* One block per line, numbered in the gutter (numbers aren't selectable or copied) */
+.ce-line {
+    display: block;
+    min-height: 1.7em;
+}
+
+.ce-line::before {
+    display: inline-block;
+    width: 3.5ch;
+    padding-right: 2ch;
+    color: var(--ce-muted);
+    text-align: right;
+    content: counter(ce-line);
+    counter-increment: ce-line;
+    user-select: none;
+}
+
+.ce-str {
+    color: var(--ce-str);
+}
+
+/* Ghost's code card with a caption */
+.ce-content .kg-code-card figcaption {
+    margin-top: 8px;
+}
+
+/* 8. Sidebar: "On this page" + series
+/* ---------------------------------------------------------- */
+
+.ce-aside {
+    position: sticky;
+    top: 96px;
+    display: flex;
+    flex: 1 1 220px;
+    flex-direction: column;
+    gap: 36px;
+    max-width: 260px;
+    padding-top: 8px;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.ce-toc,
+.ce-aside-series {
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    transform: translateY(-50%);
-    border-radius: 0 8px 8px 0;
-    box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+    gap: 10px;
 }
 
-.ce-share-rail :is(a, button) {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 46px;
-    height: 46px;
-    padding: 0;
-    background: var(--ce-card);
-    border: 0;
-    border-bottom: 1px solid var(--ce-border);
-    color: var(--ce-text-muted);
-    cursor: pointer;
-    transition: background 0.2s, color 0.2s;
-}
-
-.ce-share-rail :is(a, button):last-child {
-    border-bottom: 0;
-}
-
-.ce-share-rail :is(a, button):is(:hover, .is-copied) {
-    background: var(--ce-burgundy);
-    color: #fff;
-    opacity: 1;
-}
-
-.ce-share-rail svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* Below ~1240px the rail would touch the article, so it goes away; the share row at the end stays */
-@media (max-width: 1240px) {
-    .ce-share-rail {
-        display: none;
-    }
-}
-
-/* After the article: author box and previous/next */
-.ce-after {
-    margin-top: 56px;
-}
-
-.ce-author-box {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    padding: 24px 0;
-    border-top: 1px solid var(--ce-border);
-}
-
-.ce-author-box p {
-    margin-top: 6px;
-    color: var(--ce-text-muted);
-    line-height: 1.6;
-}
-
-.ce-prev-next {
-    margin-top: 40px;
-}
-
-.ce-prev-next > .gh-inner {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 32px;
-    padding: clamp(20px, 4vw, 40px);
-    background: var(--ce-reading-bg);
-    color: var(--ce-reading-text);
-    border: 1px solid var(--ce-reading-border);
-    border-radius: 12px;
-}
-
-/* Hide the box entirely when there is neither a previous nor a next post */
-.ce-prev-next:not(:has(.ce-pn)) {
+.ce-toc[hidden] {
     display: none;
 }
 
-.ce-pn {
+.ce-toc-links a {
     display: block;
-    color: inherit;
+    padding: 7px 0;
+    color: var(--ce-muted);
+    text-decoration: none;
 }
 
-.ce-pn.is-next {
-    grid-column: 2;
-    text-align: right;
-}
-
-.ce-pn:hover {
+.ce-toc-links a:hover,
+.ce-toc-links a.is-active {
+    color: var(--ce-ink);
     opacity: 1;
 }
 
-.ce-pn:hover .ce-pn-title {
-    color: var(--ce-reading-link);
+.ce-toc-links a.is-active {
+    font-weight: 600;
 }
 
-.ce-pn-label {
-    display: block;
-    margin-bottom: 10px;
-    color: var(--ce-reading-link);
+.ce-toc:not([hidden]) + .ce-aside-series {
+    padding-top: 24px;
+    border-top: 1px solid var(--ce-rule);
+}
+
+/* Numbered post lists: 01, 02, 03 … (sidebar and tag pages) */
+.ce-series-posts {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: ce-post;
+}
+
+.ce-series-posts li {
+    counter-increment: ce-post;
+}
+
+.ce-series-posts a {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 0;
+    color: var(--ce-muted);
+    text-decoration: none;
+}
+
+.ce-series-posts a::before {
+    flex: none;
     font-family: var(--font-mono);
-    font-size: 1.3rem;
+    font-weight: 500;
+    content: counter(ce-post, decimal-leading-zero);
 }
 
-.ce-pn-title {
-    display: block;
-    color: var(--ce-reading-heading);
-    font-family: var(--font-mono);
-    font-size: 2rem;
-    font-weight: 700;
-    line-height: 1.3;
-    transition: color 0.15s;
+.ce-series-posts a:hover,
+.ce-series-posts a[aria-current] {
+    color: var(--ce-ink);
+    opacity: 1;
 }
 
-@media (max-width: 700px) {
-    .ce-prev-next > .gh-inner {
-        grid-template-columns: minmax(0, 1fr);
+.ce-series-posts a[aria-current] {
+    font-weight: 600;
+}
+
+/* The compact (sidebar) list hides read times */
+.ce-series-posts.is-compact .ce-meta {
+    display: none;
+}
+
+/* Full-size version on tag pages: larger titles, read time on the right */
+.ce-series-posts:not(.is-compact) a {
+    gap: 16px;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--ce-rule);
+    font-size: 19px;
+    line-height: 1.4;
+}
+
+.ce-series-posts:not(.is-compact) a::before {
+    font-size: 14px;
+}
+
+.ce-series-posts:not(.is-compact) .ce-series-title {
+    flex: 1;
+    color: var(--ce-ink);
+    font-weight: 500;
+}
+
+.ce-series-posts:not(.is-compact) a:hover .ce-series-title {
+    color: var(--ce-link);
+}
+
+/* When the sidebar sits under the article (narrow screens), "On this page" is pointless */
+@media (max-width: 900px) {
+    .ce-aside {
+        position: static;
+        max-width: none;
     }
 
-    .ce-pn.is-next {
-        grid-column: auto;
-        text-align: left;
+    .ce-toc {
+        display: none !important;
+    }
+
+    .ce-aside-series {
+        padding-top: 24px;
+        border-top: 1px solid var(--ce-rule);
     }
 }
 
-/* 7. About / Subscribe pages
+/* 9. Author, post navigation, subscribe
 /* ---------------------------------------------------------- */
 
-:is(.page-about, .page-subscribe) .gh-article-title {
-    color: var(--ce-accent);
-    font-family: var(--font-mono);
+.ce-author {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 56px;
+    padding: 24px 0;
+    border-block: 1px solid var(--ce-rule);
+    line-height: 1.5;
 }
 
-/* Ghost's built-in Signup card (type /signup in the editor).
-   The card writes its own colours inline (light grey background, black text, white
-   button text), which clash with the dark pane: the typed email and button label
-   disappear. !important makes it follow the palette instead, in posts and pages. */
-.gh-content .kg-signup-card {
-    background: var(--ce-reading-wash) !important;
-    border: 1px solid var(--ce-reading-border);
-    border-radius: 12px;
+.ce-author + .ce-author {
+    margin-top: 0;
+    border-top: 0;
 }
 
-.gh-content .kg-signup-card :is(.kg-signup-card-heading, .kg-signup-card-subheading,
-    .kg-signup-card-success, .kg-signup-card-error, .kg-signup-card-disclaimer) {
-    color: var(--ce-reading-text) !important;
+.ce-author-name {
+    color: var(--ce-ink);
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
-/* The heading is part of the card, not a section heading: no accent bar, calmer size */
-.gh-content .kg-signup-card-heading {
-    padding-left: 0;
-    border-left: 0;
-    font-size: clamp(2.4rem, 1.8rem + 1.2vw, 3.2rem) !important;
-    color: var(--ce-reading-heading) !important;
-    font-family: var(--font-mono);
+.ce-author-bio {
+    margin: 2px 0 0;
+    color: var(--ce-muted);
+    font-size: 15px;
 }
 
-/* Ghost wraps input + button in a white bordered box; make it follow the pane */
-.gh-content .kg-signup-card-fields {
+/* "← Series index" / "Next →" cards */
+.ce-postnav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+    gap: 12px;
+    margin-top: 32px;
+}
+
+.ce-postnav:empty {
+    display: none;
+}
+
+.ce-postnav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 18px;
+    border: 1px solid var(--ce-rule);
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.ce-postnav-link:hover {
+    border-color: var(--ce-muted);
+    opacity: 1;
+}
+
+.ce-postnav-link.is-next {
+    text-align: right;
+}
+
+.ce-postnav-link.is-next .ce-meta {
+    justify-content: flex-end;
+}
+
+.ce-postnav-title {
+    color: var(--ce-ink);
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.45;
+}
+
+/* "Get new field notes by email" */
+.ce-subscribe {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 56px;
+    padding: 28px clamp(18px, 3vw, 32px);
+    border: 1px solid var(--ce-rule);
+    border-radius: 10px;
+}
+
+.ce-subscribe-title {
+    margin: 0;
+    color: var(--ce-ink);
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ce-subscribe-text {
+    margin: 0;
+    color: var(--ce-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.ce-subscribe-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: flex-end;
+    margin-top: 8px;
+}
+
+.ce-field {
+    display: flex;
+    flex: 1 1 240px;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ce-field label {
+    color: var(--ce-muted);
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.ce-field input {
+    height: 46px;
+    padding: 0 14px;
+    background: var(--ce-bg);
+    border: 1px solid var(--ce-muted);
+    border-radius: 6px;
+    color: var(--ce-ink);
+    font: inherit;
+    font-size: 16px;
+}
+
+.ce-field input:focus {
+    border-color: var(--ce-ink);
+    outline: 2px solid var(--ce-ink);
+    outline-offset: 1px;
+}
+
+.ce-subscribe-form .ce-btn {
+    height: 46px;
+    padding: 0 20px;
+}
+
+/* Ghost adds .loading / .success / .error to the form; messages stay hidden until then */
+.ce-subscribe-form.loading .ce-btn {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.ce-form-note {
+    display: none;
+    flex-basis: 100%;
+    margin: 0;
+    font-size: 15px;
+}
+
+.ce-subscribe-form.success .ce-form-success,
+.ce-subscribe-form.error .ce-form-error {
+    display: block;
+}
+
+.ce-subscribe-form.success .ce-form-success {
+    color: var(--ce-ink);
+}
+
+.ce-subscribe-form.error .ce-form-error {
+    color: var(--ce-ink);
+    font-weight: 500;
+}
+
+.ce-subscribe-form.success :is(.ce-field, .ce-btn) {
+    display: none;
+}
+
+/* 10. Lists: home, archive, series page, tag page
+/* ---------------------------------------------------------- */
+
+.ce-list-header + .ce-label {
+    margin-bottom: 4px;
+}
+
+.ce-rows {
+    display: flex;
+    flex-direction: column;
+}
+
+.ce-row,
+.ce-series-item {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--ce-rule);
+}
+
+.ce-row-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+
+.ce-row-title a {
+    color: var(--ce-ink);
+    text-decoration: none;
+}
+
+.ce-row-title a:hover {
+    color: var(--ce-link);
+    opacity: 1;
+}
+
+.ce-row-excerpt {
+    margin: 0;
+    color: var(--ce-muted);
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.ce-series-index {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.ce-more {
+    align-self: flex-start;
+    margin-top: 24px;
+    color: var(--ce-link);
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.ce-pagination {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 32px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.ce-pagination a {
+    color: var(--ce-link);
+}
+
+/* Author page header: avatar beside the name */
+.ce-list-header.ce-author {
+    flex-direction: row;
+    margin-top: 0;
+    border-top: 0;
+}
+
+/* 11. Ghost cards + About card
+/* ---------------------------------------------------------- */
+
+/* Callout card: Ghost sets a colour class (grey, blue, …); the design is greyscale */
+.ce-content .kg-callout-card {
+    padding: 18px 22px;
+    background: var(--ce-surface) !important;
+    border: 0;
+    border-radius: 8px;
+    color: var(--ce-body);
+    font-size: 16px;
+    line-height: 1.65;
+}
+
+.ce-content .kg-callout-card .kg-callout-text {
+    color: var(--ce-body);
+    font-size: 16px;
+}
+
+.ce-content :is(.kg-toggle-card, .kg-bookmark-container, .kg-product-card-container, .kg-file-card-container) {
+    background: var(--ce-surface);
+    border-color: var(--ce-rule);
+    color: var(--ce-body);
+}
+
+.ce-content .kg-bookmark-container {
+    text-decoration: none;
+}
+
+.ce-content :is(.kg-bookmark-title, .kg-toggle-heading-text, .kg-file-card-title) {
+    color: var(--ce-ink);
+}
+
+/* Ghost's built-in Signup card (/signup in the editor): its inline colours are
+   overridden so it matches the subscribe box in both themes */
+.ce-content .kg-signup-card {
+    background: transparent !important;
+    border: 1px solid var(--ce-rule);
+    border-radius: 10px;
+}
+
+.ce-content .kg-signup-card :is(.kg-signup-card-heading, .kg-signup-card-subheading, .kg-signup-card-success, .kg-signup-card-error, .kg-signup-card-disclaimer) {
+    color: var(--ce-body) !important;
+}
+
+.ce-content .kg-signup-card-heading {
+    color: var(--ce-ink) !important;
+    font-family: var(--font-sans);
+    font-size: 22px !important;
+    font-weight: 600;
+}
+
+.ce-content .kg-signup-card-heading::before {
+    content: none;
+}
+
+.ce-content .kg-signup-card-fields {
+    gap: 10px;
     background: transparent !important;
     border: 0 !important;
 }
 
-.gh-content .kg-signup-card-input {
-    background: var(--ce-reading-bg) !important;
-    color: var(--ce-reading-text) !important;
-    border: 1px solid var(--ce-reading-border) !important;
-    font-family: var(--font-mono);
+.ce-content .kg-signup-card-input {
+    background: var(--ce-bg) !important;
+    border: 1px solid var(--ce-muted) !important;
+    border-radius: 6px;
+    color: var(--ce-ink) !important;
+    font-family: var(--font-sans);
 }
 
-.gh-content .kg-signup-card-input::placeholder {
-    color: var(--ce-reading-muted);
+.ce-content .kg-signup-card-input::placeholder {
+    color: var(--ce-muted);
     opacity: 1;
 }
 
-.gh-content .kg-signup-card-input:focus {
-    border-color: var(--ce-reading-link) !important;
-    outline: none;
-    box-shadow: 0 0 0 3px var(--ce-glow-low);
+.ce-content .kg-signup-card-button {
+    background: var(--ce-btn-bg) !important;
+    border-radius: 6px;
+    color: var(--ce-btn-ink) !important;
+    font-family: var(--font-sans);
+    font-weight: 500;
 }
 
-/* Solid teal button with pane-coloured text: readable in both palettes */
-.gh-content .kg-signup-card-button {
-    background: var(--ce-reading-link) !important;
-    color: var(--ce-reading-bg) !important;
-    font-family: var(--font-mono);
-    font-weight: 700;
-}
-
-.gh-content .kg-signup-card-error {
-    color: var(--ce-reading-link-hover) !important;
-}
-
-/* Phones: email field on its own line, full-width button under it */
 @media (max-width: 480px) {
-    .gh-content .kg-signup-card-fields {
+    .ce-content .kg-signup-card-fields {
         flex-direction: column;
     }
 
-    .gh-content .kg-signup-card-button {
+    .ce-content .kg-signup-card-button {
         width: 100%;
     }
 }
 
-/* The floating pill is pointless on the page it links to */
-.page-subscribe .ce-subscribe-bubble {
-    display: none;
-}
-
-/* "$ whoami" profile card, written as an HTML card in the Ghost editor:
-   <div class="ce-whoami"><p class="ce-whoami-cmd"><span>$</span> whoami</p>
-   <dl><dt>name</dt><dd>…</dd>…</dl></div>
-   Always dark (like code blocks) so it reads as a terminal in both palettes. */
-.gh-content .ce-whoami {
-    padding: 20px 24px;
-    background: var(--ce-code-bg);
-    color: var(--ce-code-text);
-    border: 1px solid var(--ce-reading-border);
-    border-left: 4px solid var(--ce-accent);
+/* "$ whoami" card on the About page (an HTML card):
+   <div class="ce-whoami"><p class="ce-whoami-cmd"><span>$</span> whoami</p><dl>…</dl></div> */
+.ce-content .ce-whoami {
+    padding: 18px 22px;
+    background: var(--ce-surface);
+    border: 1px solid var(--ce-rule);
     border-radius: 8px;
+    color: var(--ce-ink);
     font-family: var(--font-mono);
-    font-size: 1.5rem;
-    line-height: 1.6;
+    font-size: 14.5px;
+    line-height: 1.7;
 }
 
-.gh-content .ce-whoami-cmd {
-    margin: 0 0 12px;
-    color: #9fb8ae;
+.ce-content .ce-whoami-cmd {
+    margin: 0 0 10px;
+    color: var(--ce-muted);
 }
 
-.gh-content .ce-whoami-cmd span {
-    color: #2ee0b8;
-    font-weight: 700;
-    user-select: none;
-}
-
-/* Two columns: short key on the left, value on the right */
-.gh-content .ce-whoami dl {
+.ce-content .ce-whoami dl {
     display: grid;
     grid-template-columns: max-content 1fr;
-    gap: 6px 20px;
+    gap: 4px 20px;
     margin: 0;
 }
 
-.gh-content .ce-whoami dt {
-    color: #2ee0b8;
+.ce-content .ce-whoami dt {
+    color: var(--ce-muted);
 }
 
-.gh-content .ce-whoami dd {
+.ce-content .ce-whoami dd {
     margin: 0;
 }
 
-/* Stack key above value on narrow phones */
 @media (max-width: 480px) {
-    .gh-content .ce-whoami dl {
+    .ce-content .ce-whoami dl {
         grid-template-columns: 1fr;
         gap: 0;
     }
 
-    .gh-content .ce-whoami dd {
+    .ce-content .ce-whoami dd {
         margin-bottom: 8px;
     }
 }
 
-/* 8. Series page (page-series.hbs)
+/* 12. Footer, focus, reduced motion
 /* ---------------------------------------------------------- */
 
-/* Use Source's wider "wide" column so two cards fit side by side */
-.ce-series-page {
-    padding-bottom: 40px;
+.ce-footer {
+    margin-top: 96px;
+    border-top: 1px solid var(--ce-rule);
 }
 
-.ce-series-page > * {
-    grid-column: wide;
-}
-
-.ce-series-lead {
-    color: var(--ce-text-muted);
-    font-family: var(--font-mono);
-}
-
-.ce-series-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr));
-    gap: 18px;
-    margin-top: 28px;
-}
-
-.ce-series-card {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    min-height: 178px;
-    padding: 22px;
-    background: var(--ce-card);
-    border: 1px solid var(--ce-border);
-    border-radius: 8px;
-    color: var(--ce-text);
-    font-family: var(--font-mono);
-    box-shadow: 0 12px 32px rgb(0 0 0 / 0.18);
-    scroll-margin-top: 100px; /* so /series/#slug (old links) doesn't land under the header */
-    transition: border-color 0.2s, transform 0.2s;
-}
-
-.ce-series-card:hover,
-.ce-series-card:target {
-    border-color: var(--ce-accent-hover);
-    transform: translateY(-2px);
-}
-
-.ce-series-prompt,
-.ce-series-count {
-    color: var(--ce-accent);
-    font-size: 1.2rem;
-}
-
-.ce-series-count {
-    margin-top: auto;
-}
-
-.ce-series-card h2 {
-    font-family: var(--font-mono);
-    font-size: 2.2rem;
-}
-
-.ce-series-card p {
-    color: var(--ce-text-muted);
-    font-size: 1.4rem;
-    line-height: 1.65;
-}
-
-/* 9. Footer
-/* ---------------------------------------------------------- */
-
-.gh-footer {
-    margin-top: 80px;
-    border-top: 1px solid var(--ce-border);
-}
-
-.gh-footer-signup {
-    padding-top: 60px;
-}
-
-.ce-social-bar {
+.ce-footer-inner {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
-    padding: 32px 0;
-}
-
-.ce-social-bar a {
-    display: inline-flex;
+    gap: 8px 32px;
     align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    background: var(--ce-card);
-    border: 1px solid var(--ce-border);
-    border-radius: 8px;
-    color: var(--ce-text-muted);
-    transition: background 0.2s, border-color 0.2s, transform 0.2s;
-}
-
-.gh-footer .ce-social-bar a:hover {
-    background: var(--ce-burgundy);
-    border-color: var(--ce-accent);
-    color: #fff;
-    transform: translateY(-2px);
-}
-
-.ce-social-bar svg {
-    width: 18px;
-    height: 18px;
-}
-
-/* Terminal block: "$ command" in a fixed column, output beside it */
-.ce-footer {
-    padding: 36px clamp(20px, 4vw, 48px);
-    border-top: 1px solid var(--ce-border);
+    justify-content: space-between;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 20px var(--ce-gutter);
+    color: var(--ce-muted);
     font-family: var(--font-mono);
-    font-size: 1.3rem;
-    line-height: 1.7;
+    font-size: 13px;
+    line-height: 1.5;
 }
 
-.ce-footer-row {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: 6px 16px;
-    margin-top: 6px;
-}
-
-.ce-prompt {
-    margin-right: 8px;
-    color: var(--ce-accent);
-    font-weight: 700;
-    user-select: none;
-}
-
-.ce-footer-comment {
-    margin-top: 8px;
-    color: var(--ce-text-dim);
+.ce-footer-meta {
+    margin: 0;
 }
 
 .ce-footer-note {
-    max-width: 860px;
-    margin-top: 4px;
-    color: var(--ce-text-muted);
-    font-size: 1.2rem;
+    display: block;
 }
 
-.ce-footer-divider {
-    margin: 16px 0;
-    border: 0;
-    border-top: 1px solid var(--ce-border);
-    opacity: 0.6;
-}
-
-.gh-footer .ce-footer a {
-    color: var(--ce-accent);
-}
-
-@media (max-width: 600px) {
-    .ce-footer-row {
-        grid-template-columns: 1fr;
-    }
-}
-
-/* 10. Floating bits
-/* ---------------------------------------------------------- */
-
-/* Left side panel of social links; "is-collapsed" leaves just the tab showing */
-.ce-side-panel {
-    position: fixed;
-    top: 50%;
-    left: 0;
-    z-index: 900;
+.ce-footer-links {
     display: flex;
-    transform: translateY(-50%);
-    transition: transform 0.3s ease;
+    flex-wrap: wrap;
+    gap: 0 18px;
 }
 
-.ce-side-panel.is-collapsed {
-    transform: translateY(-50%) translateX(calc(-100% + 20px));
+.ce-footer-links a {
+    padding: 12px 0;
+    color: var(--ce-muted);
+    text-decoration: none;
 }
 
-.ce-side-inner {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px 8px;
-    background: var(--ce-card);
-    border: 1px solid var(--ce-border);
-    border-radius: 0 8px 8px 0;
-}
-
-.ce-side-inner a {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border: 1px solid var(--ce-border);
-    border-radius: 50%;
-    color: var(--ce-text-dim);
-    transition: background 0.2s, color 0.2s;
-}
-
-.ce-side-inner a:hover {
-    background: var(--ce-accent);
-    border-color: var(--ce-accent);
-    color: var(--ce-panel);
-}
-
-.ce-side-inner svg {
-    width: 14px;
-    height: 14px;
-}
-
-.ce-side-tab {
-    align-self: center;
-    width: 20px;
-    padding: 20px 0;
-    background: var(--ce-card);
-    border: 1px solid var(--ce-border);
-    border-left: 0;
-    border-radius: 0 4px 4px 0;
-    color: var(--ce-text-dim);
-    font-size: 1.1rem;
-    cursor: pointer;
-}
-
-.ce-side-tab:hover {
-    color: var(--ce-accent);
-}
-
-@media (max-width: 600px) {
-    .ce-side-panel {
-        display: none;
-    }
-}
-
-/* Floating "~/ce | Subscribe" pill, bottom-right */
-.ce-subscribe-bubble {
-    position: fixed;
-    right: 28px;
-    bottom: 28px;
-    z-index: 900;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    padding: 10px 20px 10px 14px;
-    background: var(--ce-panel);
-    border: 1.5px solid var(--ce-accent);
-    border-radius: 28px;
-    color: var(--ce-text);
-    font-family: var(--font-mono);
-    font-size: 1.3rem;
-    font-weight: 600;
-    box-shadow: 0 4px 20px var(--ce-glow-high);
-    transition: transform 0.2s, background 0.2s;
-}
-
-.ce-subscribe-bubble:hover {
-    background: var(--ce-card);
-    color: var(--ce-accent-hover);
+.ce-footer-links a:hover {
+    color: var(--ce-ink);
     opacity: 1;
-    transform: translateY(-2px);
 }
 
-.ce-bubble-logo {
-    color: var(--ce-accent);
-    font-size: 1.2rem;
-    font-weight: 700;
+/* Visible keyboard focus everywhere */
+:is(a, button, input, summary):focus-visible {
+    outline: 2px solid var(--ce-ink);
+    outline-offset: 2px;
 }
 
-.ce-bubble-sep {
-    width: 1px;
-    height: 16px;
-    background: var(--ce-border);
-}
-
-@media (max-width: 640px) {
-    .ce-subscribe-bubble {
-        right: 16px;
-        bottom: 16px;
-    }
-}
-
-/* 11. Reduced motion
-/* ---------------------------------------------------------- */
-
-/* Respect visitors who ask their OS for less motion: no blinking, lifting or gliding */
 @media (prefers-reduced-motion: reduce) {
     :root[data-theme] {
         scroll-behavior: auto;

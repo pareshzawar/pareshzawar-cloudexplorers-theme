@@ -1,8 +1,8 @@
 {
     "name": "cloudexplorers",
-    "description": "Ghost theme for cloudexplorers.club, a terminal-styled fork of Source",
+    "description": "Ghost theme for cloudexplorers.club: the Notebook design (IBM Plex, greyscale, light/dark), built on Source",
     "demo": "https://cloudexplorers.club",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "engines": {
         "ghost": ">=5.0.0",
         "node": ">=22.12.0"
@@ -87,96 +87,28 @@
             "color_theme": {
                 "type": "select",
                 "options": [
-                    "Terminal",
+                    "Auto",
                     "Light",
-                    "Auto"
+                    "Dark"
                 ],
-                "default": "Terminal",
-                "description": "Auto follows the visitor’s system light/dark preference"
+                "default": "Auto",
+                "description": "Auto follows each visitor’s system light/dark setting"
             },
             "show_theme_toggle": {
                 "type": "boolean",
                 "default": true,
-                "description": "Show a button in the header so visitors can switch theme"
+                "description": "Show the light/dark button in the header"
             },
             "goatcounter_code": {
                 "type": "text",
-                "description": "Your GoatCounter code (the “xyz” in xyz.goatcounter.com). Leave empty to disable analytics",
-                "default": "cloudexplorers"
-            },
-            "navigation_layout": {
-                "type": "select",
-                "options": [
-                    "Logo in the middle",
-                    "Logo on the left",
-                    "Stacked"
-                ],
-                "default": "Logo on the left"
-            },
-            "title_font": {
-                "type": "select",
-                "options": [
-                    "Modern sans-serif",
-                    "Elegant serif",
-                    "Consistent mono"
-                ],
-                "default": "Consistent mono"
-            },
-            "body_font": {
-                "type": "select",
-                "options": [
-                    "Modern sans-serif",
-                    "Elegant serif"
-                ],
-                "default": "Modern sans-serif"
-            },
-            "signup_heading": {
-                "type": "text",
-                "description": "Used in your footer across your theme, defaults to site title when empty"
-            },
-            "signup_subheading": {
-                "type": "text",
-                "description": "Defaults to site description when empty"
-            },
-            "post_feed_style": {
-                "type": "select",
-                "options": [
-                    "List",
-                    "Grid"
-                ],
-                "default": "Grid",
-                "group": "homepage"
-            },
-            "show_images_in_feed": {
-                "type": "boolean",
-                "default": true,
-                "group": "homepage",
-                "visibility": "post_feed_style:List"
-            },
-            "show_author": {
-                "type": "boolean",
-                "default": true,
-                "group": "homepage"
-            },
-            "show_publish_date": {
-                "type": "boolean",
-                "default": true,
-                "group": "homepage"
-            },
-            "show_publication_info_sidebar": {
-                "type": "boolean",
-                "default": false,
-                "group": "homepage"
+                "default": "cloudexplorers",
+                "description": "Your GoatCounter code (the “xyz” in xyz.goatcounter.com). Leave empty to disable analytics"
             },
             "show_post_metadata": {
                 "type": "boolean",
                 "default": true,
-                "group": "post"
-            },
-            "enable_drop_caps_on_posts": {
-                "type": "boolean",
-                "default": false,
-                "group": "post"
+                "group": "post",
+                "description": "Series, read time, date and author at the top of posts"
             }
         }
     }

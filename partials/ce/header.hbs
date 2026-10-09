@@ -1,0 +1,34 @@
+{{!-- Site header: "~/ce | Cloud Explorers", the Ghost navigation (Admin > Navigation),
+      search (Ghost's built-in search; "/" also opens it), the light/dark toggle and Subscribe.
+      On posts a thin reading-progress bar sits along the bottom edge (cloudexplorers.js). --}}
+<header class="ce-header">
+    <div class="ce-header-inner">
+        <a class="ce-brand" href="{{@site.url}}">
+            <span class="ce-brand-mark">~/ce</span>
+            <span class="ce-brand-rule" aria-hidden="true"></span>
+            <span class="ce-brand-name">{{@site.title}}</span>
+        </a>
+        <div class="ce-header-actions">
+            <nav class="ce-nav" aria-label="Primary">
+                {{navigation}}
+            </nav>
+            <button class="ce-search" type="button" data-ghost-search aria-label="Search this site">
+                {{> "icons/search"}}
+                <span>Search</span>
+                <kbd>/</kbd>
+            </button>
+            {{#if @custom.show_theme_toggle}}
+                <button class="ce-theme-toggle" type="button" aria-label="Switch between light and dark theme" title="Switch theme">
+                    {{> "icons/moon"}}
+                    {{> "icons/sun"}}
+                </button>
+            {{/if}}
+            {{#unless @member}}
+                <a class="ce-btn" href="{{@site.url}}/subscribe/">Subscribe</a>
+            {{/unless}}
+        </div>
+    </div>
+    {{#is "post"}}
+        <div class="ce-progress" aria-hidden="true"><div class="ce-progress-bar"></div></div>
+    {{/is}}
+</header>

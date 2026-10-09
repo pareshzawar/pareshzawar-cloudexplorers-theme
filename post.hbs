@@ -1,107 +1,105 @@
 {{!< default}}
-{{!-- The tag above means: insert everything in this file into the body of the default.hbs template --}}
+{{!-- Article page, "B · Notebook" design:
+      left  = the article (header, content, author, series navigation, subscribe box)
+      right = "On this page" (filled by cloudexplorers.js) and the list of posts in this series.
+      The right column drops below the article on narrow screens. --}}
 
 {{#post}}
 
-<main class="gh-main">
+<main class="ce-main">
+    <div class="ce-post-layout">
 
-    {{> "ce/share-rail"}}
+        <article class="ce-article {{post_class}}">
 
-    <article class="gh-article {{post_class}}">
-
-        {{!-- Article header: every tag, title, "date | N min read", then the authors --}}
-        <header class="gh-article-header gh-canvas">
-
-            {{#if tags}}
-                <p class="ce-article-tags">
-                    {{#foreach tags}}<a href="{{url}}">{{name}}</a>{{#unless @last}}, {{/unless}}{{/foreach}}
-                </p>
-            {{/if}}
-            <h1 class="gh-article-title is-title">{{title}}</h1>
-
-            {{#if @custom.show_post_metadata}}
-                <p class="ce-article-date">
-                    <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMMM YYYY"}}</time>
-                    {{#if reading_time}}<span class="ce-sep" aria-hidden="true">|</span>{{reading_time minute="1 min read" minutes="% min read"}}{{/if}}
-                </p>
-                <ul class="ce-article-authors">
-                    {{#foreach authors}}
-                        <li>
-                            <a class="ce-avatar" href="{{url}}" aria-hidden="true" tabindex="-1">
-                                {{#if profile_image}}<img src="{{img_url profile_image size="xs"}}" alt="">{{else}}{{> "icons/avatar"}}{{/if}}
+            <header class="ce-article-header">
+                {{#if @custom.show_post_metadata}}
+                    <p class="ce-meta">
+                        {{#if primary_tag}}<a class="ce-meta-strong" href="{{primary_tag.url}}">{{primary_tag.name}}</a><span aria-hidden="true">/</span>{{/if}}
+                        {{#if reading_time}}<span>{{reading_time minute="1 min read" minutes="% min read"}}</span><span aria-hidden="true">/</span>{{/if}}
+                        <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time>
+                    </p>
+                {{/if}}
+                <h1 class="ce-article-title">{{title}}</h1>
+                {{#if custom_excerpt}}
+                    <p class="ce-article-excerpt">{{custom_excerpt}}</p>
+                {{/if}}
+                {{#if @custom.show_post_metadata}}
+                    <div class="ce-byline">
+                        {{#foreach authors}}
+                            <a class="ce-byline-author" href="{{url}}">
+                                <span class="ce-avatar" aria-hidden="true">{{#if profile_image}}<img src="{{img_url profile_image size="xs"}}" alt="">{{/if}}</span>
+                                <span>{{name}}</span>
                             </a>
-                            <span>
-                                <a class="ce-author-name" href="{{url}}">{{name}}</a>
-                                {{#if location}}<span class="ce-author-role">{{location}}</span>{{/if}}
-                            </span>
-                        </li>
-                    {{/foreach}}
-                </ul>
-            {{/if}}
+                        {{/foreach}}
+                    </div>
+                {{/if}}
+            </header>
 
             {{> "feature-image"}}
 
-        </header>
-
-        {{!-- Two columns on wide screens: the article, and a sticky table of contents.
-              cloudexplorers.js fills the TOC from the post's h2/h3 headings and leaves it
-              hidden when there are fewer than two. --}}
-        <div class="ce-post-layout">
-            <section class="gh-content gh-canvas is-body{{#if @custom.enable_drop_caps_on_posts}} drop-cap{{/if}}">
-                {{#if custom_excerpt}}
-                    <p class="ce-lead-in">{{custom_excerpt}}</p>
-                {{/if}}
+            <section class="gh-content ce-content">
                 {{content}}
-                {{> "ce/share" position="bottom"}}
             </section>
-            <nav class="ce-toc" aria-label="Table of contents" hidden>
-                <p class="ce-toc-title">// contents</p>
+
+            {{!-- About the author --}}
+            {{#foreach authors}}
+                <section class="ce-author" aria-label="About the author">
+                    <span class="ce-avatar is-large" aria-hidden="true">{{#if profile_image}}<img src="{{img_url profile_image size="s"}}" alt="">{{/if}}</span>
+                    <div>
+                        <a class="ce-author-name" href="{{url}}">{{name}}</a>
+                        {{#if bio}}<p class="ce-author-bio">{{bio}}</p>{{/if}}
+                    </div>
+                </section>
+            {{/foreach}}
+
+            {{!-- Series navigation: back to the series index, and the next post in the same series.
+                  Without a series tag it falls back to the previous / next post overall. --}}
+            <nav class="ce-postnav" aria-label="Post navigation">
+                {{#if primary_tag}}
+                    <a class="ce-postnav-link" href="{{primary_tag.url}}">
+                        <span class="ce-meta">&larr; Series index</span>
+                        <span class="ce-postnav-title">{{primary_tag.name}}</span>
+                    </a>
+                    {{#next_post in="primary_tag"}}
+                        <a class="ce-postnav-link is-next" href="{{url}}">
+                            <span class="ce-meta">Next &rarr;</span>
+                            <span class="ce-postnav-title">{{title}}</span>
+                        </a>
+                    {{/next_post}}
+                {{else}}
+                    {{#prev_post}}
+                        <a class="ce-postnav-link" href="{{url}}">
+                            <span class="ce-meta">&larr; Previous</span>
+                            <span class="ce-postnav-title">{{title}}</span>
+                        </a>
+                    {{/prev_post}}
+                    {{#next_post}}
+                        <a class="ce-postnav-link is-next" href="{{url}}">
+                            <span class="ce-meta">Next &rarr;</span>
+                            <span class="ce-postnav-title">{{title}}</span>
+                        </a>
+                    {{/next_post}}
+                {{/if}}
             </nav>
-        </div>
 
-    </article>
+            {{> "ce/subscribe-box"}}
+        </article>
 
-    {{!-- About the author(s) --}}
-    <section class="ce-after gh-canvas">
-        {{#foreach authors}}
-            <div class="ce-author-box">
-                <a class="ce-avatar is-large" href="{{url}}" aria-hidden="true" tabindex="-1">
-                    {{#if profile_image}}<img src="{{img_url profile_image size="s"}}" alt="">{{else}}{{> "icons/avatar"}}{{/if}}
-                </a>
-                <div>
-                    <a class="ce-author-name" href="{{url}}">{{name}}</a>
-                    {{#if bio}}<p>{{bio}}</p>{{/if}}
-                </div>
+        {{!-- Right column --}}
+        <aside class="ce-aside" aria-label="On this page">
+            <div class="ce-toc" hidden>
+                <p class="ce-label">On this page</p>
+                <nav class="ce-toc-links" aria-label="Table of contents"></nav>
             </div>
-        {{/foreach}}
-    </section>
+            {{#if primary_tag}}
+                <div class="ce-aside-series">
+                    <p class="ce-label">Series &middot; {{primary_tag.name}}</p>
+                    {{> "ce/series-posts" slug=primary_tag.slug compact=true}}
+                </div>
+            {{/if}}
+        </aside>
 
-    {{!-- Previous / next post --}}
-    <nav class="ce-prev-next gh-outer" aria-label="More posts">
-        <div class="gh-inner">
-            {{#prev_post}}
-                <a class="ce-pn is-prev" href="{{url}}">
-                    <span class="ce-pn-label">&larr; cd ../previous</span>
-                    <span class="ce-pn-title">{{title}}</span>
-                    {{> "ce/meta"}}
-                </a>
-            {{/prev_post}}
-            {{#next_post}}
-                <a class="ce-pn is-next" href="{{url}}">
-                    <span class="ce-pn-label">cd ./next &rarr;</span>
-                    <span class="ce-pn-title">{{title}}</span>
-                    {{> "ce/meta"}}
-                </a>
-            {{/next_post}}
-        </div>
-    </nav>
-
-    {{#if comments}}
-        <div class="gh-comments gh-canvas">
-            {{comments}}
-        </div>
-    {{/if}}
-
+    </div>
 </main>
 
 {{/post}}

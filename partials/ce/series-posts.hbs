@@ -1,0 +1,17 @@
+{{!-- Numbered list of every post in a series (a tag), oldest first: 01, 02, 03...
+      Used beside posts ("Series · OCI in Practice") and on tag pages.
+      Parameters: slug = the tag's slug; compact = true for the narrow sidebar version
+      (CSS hides the read times there).
+      cloudexplorers.js marks the post you are reading with aria-current. --}}
+<ol class="ce-series-posts{{#if compact}} is-compact{{/if}}">
+    {{#get "posts" filter="tag:{{slug}}" order="published_at asc" limit="50" as |series_posts|}}
+        {{#foreach series_posts}}
+            <li>
+                <a href="{{url}}">
+                    <span class="ce-series-title">{{title}}</span>
+                    {{#if reading_time}}<span class="ce-meta">{{reading_time minute="1 min read" minutes="% min read"}}</span>{{/if}}
+                </a>
+            </li>
+        {{/foreach}}
+    {{/get}}
+</ol>

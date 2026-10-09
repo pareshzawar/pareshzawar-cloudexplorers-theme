@@ -1,0 +1,18 @@
+{{!-- "Get new field notes by email": Ghost's own members signup form, styled to the design.
+      Ghost's members script handles the submit and adds loading / success / error classes.
+      Hidden from people who are already subscribed. --}}
+{{#unless @member}}
+    <section class="ce-subscribe" id="subscribe">
+        <h2 class="ce-subscribe-title">Get new field notes by email</h2>
+        <p class="ce-subscribe-text">One email when a new post goes out. Unsubscribe any time.</p>
+        <form class="ce-subscribe-form" data-members-form="subscribe">
+            <div class="ce-field">
+                <label for="ce-email-{{id}}">Email address</label>
+                <input id="ce-email-{{id}}" data-members-email type="email" required placeholder="you@company.com" autocomplete="email">
+            </div>
+            <button class="ce-btn" type="submit">Subscribe</button>
+            <p class="ce-form-note ce-form-success">Check your inbox and click the link to confirm.</p>
+            <p class="ce-form-note ce-form-error" data-members-error></p>
+        </form>
+    </section>
+{{/unless}}

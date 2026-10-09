@@ -6,34 +6,35 @@
     <title>{{meta_title page=(t " (Page %)")}}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
+
     {{!-- Preload main styles and scripts for better performance --}}
     <link rel="preload" as="style" href="{{asset "built/screen.css"}}">
     <link rel="preload" as="script" href="{{asset "built/source.js"}}">
-    
-    {{!-- Fonts are preloaded and defined in the default template to avoid layout shift --}}
+
+    {{!-- IBM Plex Sans + Mono, self-hosted --}}
     {{> "typography/fonts"}}
 
-    {{!-- Theme assets - use the {{asset}} helper to reference styles & scripts, this will take care of caching and cache-busting automatically --}}
+    {{!-- Source's stylesheet (Ghost cards, lightbox, forms), then the Notebook layer on top --}}
     <link rel="stylesheet" type="text/css" href="{{asset "built/screen.css"}}">
-
-    {{!-- Cloud Explorers layer: our palettes + components, loaded after Source so it can build on it --}}
     <link rel="stylesheet" type="text/css" href="{{asset "built/cloudexplorers.css"}}">
 
-    {{!-- Pick the colour theme before first paint so there is no flash of the wrong palette.
-         Order: visitor's saved choice (theme toggle) > the "Color theme" setting in Ghost Admin.
-         "auto" resolves to light or terminal from the visitor's OS preference.
-         The has-light-text / has-dark-text class is what Source itself uses to flip text colours. --}}
+    {{!-- Pick light or dark before first paint, so the page never flashes the wrong one.
+         Order: the visitor's saved choice (theme toggle) > the "Color theme" setting in
+         Ghost Admin > Design. "auto" follows the visitor's system light/dark setting.
+         The has-dark-text / has-light-text class is what Source uses for its own colours. --}}
     <script>
         (function () {
             var root = document.documentElement;
-            var theme = '{{#match @custom.color_theme "Light"}}light{{else match @custom.color_theme "Auto"}}auto{{else}}terminal{{/match}}';
-            try { theme = localStorage.getItem('ce-theme') || theme; } catch (e) { /* storage blocked: use the site default */ }
+            var theme = '{{#match @custom.color_theme "Light"}}light{{else match @custom.color_theme "Dark"}}dark{{else}}auto{{/match}}';
+            try {
+                var saved = localStorage.getItem('ce-theme');
+                if (saved === 'light' || saved === 'dark') theme = saved; // ignore values saved by older versions
+            } catch (e) { /* storage blocked: use the site default */ }
             if (theme === 'auto') {
-                theme = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'terminal';
+                theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
             }
             root.setAttribute('data-theme', theme);
-            root.className = theme === 'light' ? 'has-dark-text' : 'has-light-text';
+            root.className = theme === 'dark' ? 'has-light-text' : 'has-dark-text';
         })();
     </script>
 
@@ -41,34 +42,23 @@
     {{ghost_head}}
 
 </head>
-<body class="{{body_class}} has-{{#match @custom.title_font "Elegant serif"}}serif{{else match @custom.title_font "Consistent mono"}}mono{{else}}sans{{/match}}-title has-{{#match @custom.body_font "Elegant serif"}}serif{{else}}sans{{/match}}-body">
+<body class="{{body_class}}">
 
 <div class="gh-viewport">
-    
-    {{> "components/navigation" navigationLayout=@custom.navigation_layout}}
+
+    {{> "ce/header"}}
 
     {{{body}}}
-    
-    {{> "components/footer"}}
-    
+
+    {{> "ce/footer"}}
+
 </div>
-
-{{!-- Social links pinned to the left edge (hidden on small screens).
-     Not on posts: the share rail (partials/ce/share-rail.hbs) uses that spot there. --}}
-{{^is "post"}}
-    {{> "ce/side-panel"}}
-{{/is}}
-
-{{!-- Floating subscribe button for non-members (CSS hides it on the /subscribe page itself) --}}
-{{#unless @member}}
-    {{> "ce/subscribe-bubble"}}
-{{/unless}}
 
 {{#is "post, page"}}
     {{> "lightbox"}}
 {{/is}}
 
-{{!-- Scripts - handle responsive videos, infinite scroll, and navigation dropdowns --}}
+{{!-- Source's scripts (responsive videos, lightbox) + cloudexplorers.js, bundled together --}}
 <script src="{{asset "built/source.js"}}"></script>
 
 {{!-- Ghost outputs required functional scripts with this tag, it should always be the last thing before the closing body tag --}}

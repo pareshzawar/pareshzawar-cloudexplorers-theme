@@ -1,46 +1,28 @@
 {{!< default}}
-{{!-- Homepage: a title band, then a raised "sheet" with the newest post as the lead,
-      the next two beside it, and the rest in a grid. 12 posts in total, matching
-      posts_per_page, so /page/2/ continues exactly where this page stops. --}}
+{{!-- Homepage: a short introduction (site title + description from Ghost Admin > General),
+      then the 12 newest posts as a plain list. 12 = posts_per_page, so /page/2/ continues
+      exactly where this page stops. --}}
 
-<section class="ce-hero gh-outer">
-    <div class="ce-hero-inner gh-inner">
-        <div>
-            <p class="ce-hero-prompt">$ cat ./README</p>
-            <h1 class="ce-hero-title">{{@site.title}}</h1>
-            {{#if @site.description}}<p class="ce-hero-desc">{{@site.description}}</p>{{/if}}
+<main class="ce-main">
+    <div class="ce-list-page">
+        <header class="ce-list-header">
+            <p class="ce-label">~/cloudexplorers.club</p>
+            <h1 class="ce-article-title">{{@site.title}}</h1>
+            {{#if @site.description}}<p class="ce-article-excerpt">{{@site.description}}</p>{{/if}}
+        </header>
+
+        <p class="ce-label">Latest</p>
+        <div class="ce-rows">
+            {{#get "posts" include="tags" limit="12" as |recent|}}
+                {{#foreach recent}}
+                    {{> "ce/post-row"}}
+                {{/foreach}}
+                {{#match recent.length ">=" 12}}
+                    <a class="ce-more" href="{{@site.url}}/page/2/">Older posts &rarr;</a>
+                {{/match}}
+            {{/get}}
         </div>
-        <a class="ce-follow" href="{{@site.url}}/rss/" aria-label="Follow via RSS">Follow: {{> "icons/rss"}}</a>
-    </div>
-</section>
 
-<main class="ce-sheet gh-outer">
-    <div class="gh-inner">
-        {{#get "posts" include="authors,tags" limit="12" as |recent|}}
-
-            {{!-- Lead post + two side posts --}}
-            <div class="ce-top">
-                {{#foreach recent limit="1"}}
-                    {{> "ce/post-lead"}}
-                {{/foreach}}
-                <div class="ce-top-side">
-                    {{#foreach recent from="2" to="3"}}
-                        {{> "ce/post-side"}}
-                    {{/foreach}}
-                </div>
-            </div>
-
-            {{!-- Everything else --}}
-            <h2 class="ce-feed-title">./latest-dispatches --sort newest</h2>
-            <div class="ce-grid">
-                {{#foreach recent from="4"}}
-                    {{> "ce/post-side" stacked=true}}
-                {{/foreach}}
-            </div>
-
-            {{#match recent.length ">=" 12}}
-                <a class="ce-more" href="{{@site.url}}/page/2/">$ ls --older &rarr;</a>
-            {{/match}}
-        {{/get}}
+        {{> "ce/subscribe-box"}}
     </div>
 </main>

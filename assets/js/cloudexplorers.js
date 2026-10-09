@@ -1,111 +1,173 @@
-/* Cloud Explorers behaviour layer.
-   Everything that can be rendered by the templates is; this file only handles what needs the browser:
-   1. theme toggle, 2. collapsible side panel, 3. "copy link" button, 4. post table of contents.
-   It is bundled into assets/built/source.js together with Source's own scripts. */
+/* Cloud Explorers ("Notebook" design) behaviour.
+   Templates render everything they can; this file only adds what needs the browser:
+   1. light/dark toggle          4. code blocks: header, line numbers, copy, string tint
+   2. "On this page" contents    5. series list: mark the post being read
+   3. reading progress bar       6. "/" opens search
+   Bundled into assets/built/source.js together with Source's scripts. */
 (function () {
     'use strict';
 
-    /* localStorage can throw (private mode, blocked storage); these wrappers make that harmless. */
-    function load(key) {
-        try { return localStorage.getItem(key); } catch (e) { return null; }
-    }
+    /* localStorage can throw (private mode, blocked storage); these wrappers make that harmless */
     function save(key, value) {
-        try { localStorage.setItem(key, value); } catch (e) { /* not saved; still works for this page view */ }
+        try { localStorage.setItem(key, value); } catch (e) { /* not saved; still works on this page */ }
     }
 
-    /* 1. Theme toggle: flips between the two palettes and remembers the visitor's choice.
-       The initial palette is set by the inline script in default.hbs before the page paints. */
+    /* 1. Light/dark toggle. The first theme is set in default.hbs before the page paints. */
     function initThemeToggle() {
         var button = document.querySelector('.ce-theme-toggle');
         if (!button) return;
         var root = document.documentElement;
         button.addEventListener('click', function () {
-            var next = root.getAttribute('data-theme') === 'light' ? 'terminal' : 'light';
+            var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
             root.setAttribute('data-theme', next);
-            // Source keys its own text colours off these two classes
-            root.className = next === 'light' ? 'has-dark-text' : 'has-light-text';
+            root.className = next === 'dark' ? 'has-light-text' : 'has-dark-text'; // Source's own colour switch
             save('ce-theme', next);
         });
     }
 
-    /* 2. Left side panel: the tab slides it out of the way; the state survives page loads. */
-    function initSidePanel() {
-        var panel = document.querySelector('.ce-side-panel');
-        if (!panel) return;
-        var tab = panel.querySelector('.ce-side-tab');
-
-        function setCollapsed(collapsed) {
-            panel.classList.toggle('is-collapsed', collapsed);
-            tab.textContent = collapsed ? '›' : '‹';
-            tab.setAttribute('aria-expanded', String(!collapsed));
-            tab.setAttribute('aria-label', collapsed ? 'Show social links' : 'Hide social links');
-        }
-
-        setCollapsed(load('ce-panel') === 'out');
-        tab.addEventListener('click', function () {
-            var collapsed = !panel.classList.contains('is-collapsed');
-            setCollapsed(collapsed);
-            save('ce-panel', collapsed ? 'out' : 'in');
-        });
-    }
-
-    /* 3. "Copy link" buttons in the share rows. Shows a short confirmation on the button itself. */
-    function initCopyLinks() {
-        document.querySelectorAll('.ce-copy-link').forEach(function (button) {
-            button.addEventListener('click', function () {
-                if (!navigator.clipboard) return; // only very old browsers lack this; other share buttons still work
-                navigator.clipboard.writeText(button.dataset.url).then(function () {
-                    button.classList.add('is-copied');
-                    button.setAttribute('aria-label', 'Link copied');
-                    setTimeout(function () {
-                        button.classList.remove('is-copied');
-                        button.setAttribute('aria-label', 'Copy link');
-                    }, 2000);
-                });
-            });
-        });
-    }
-
-    /* 4. Table of contents for posts: one link per h2/h3, highlighting the section being read.
-       Ghost already gives every heading an id, so the links are ordinary #anchors (smooth scrolling
-       comes from CSS scroll-behavior). Posts with fewer than two headings get no TOC. */
+    /* 2. "On this page": one link per h2 in the post, highlighting the section being read.
+       Also numbers the h2s (01, 02 ...) unless the author already numbered them. */
     function initToc() {
-        var toc = document.querySelector('.ce-toc');
-        var content = document.querySelector('.ce-post-layout .gh-content');
-        if (!toc || !content) return;
+        var box = document.querySelector('.ce-toc');
+        var content = document.querySelector('.post-template .ce-content');
+        if (!content) return;
 
-        var headings = Array.prototype.filter.call(content.querySelectorAll('h2, h3'), function (h) {
-            return h.id; // skip headings without an anchor (e.g. inside some embed cards)
+        var headings = Array.prototype.filter.call(content.querySelectorAll(':scope > h2'), function (h) {
+            return h.id; // Ghost gives headings an id; skip any without one
         });
-        if (headings.length < 2) return;
 
+        // Number sections only when none of the headings starts with a number already
+        var alreadyNumbered = headings.some(function (h) { return /^\s*\d/.test(h.textContent); });
+        if (!alreadyNumbered) content.classList.add('is-numbered');
+
+        if (!box || headings.length < 2) return;
+        var list = box.querySelector('.ce-toc-links');
         var links = headings.map(function (heading) {
             var link = document.createElement('a');
             link.href = '#' + heading.id;
             link.textContent = heading.textContent.trim();
-            if (heading.tagName === 'H3') link.className = 'is-sub';
-            toc.appendChild(link);
+            list.appendChild(link);
             return link;
         });
-        toc.hidden = false;
+        box.hidden = false;
 
-        // Mark the link for whichever heading most recently crossed the top part of the screen
+        // Highlight the link for the heading that most recently crossed the upper part of the screen
         var observer = new IntersectionObserver(function (entries) {
             entries.forEach(function (entry) {
                 if (!entry.isIntersecting) return;
                 links.forEach(function (link) {
-                    link.classList.toggle('is-active', link.hash === '#' + entry.target.id);
+                    var active = link.hash === '#' + entry.target.id;
+                    link.classList.toggle('is-active', active);
+                    if (active) link.setAttribute('aria-current', 'location'); else link.removeAttribute('aria-current');
                 });
             });
-        }, {rootMargin: '-80px 0px -55% 0px'});
+        }, {rootMargin: '-80px 0px -60% 0px'});
         headings.forEach(function (heading) { observer.observe(heading); });
+    }
+
+    /* 3. Reading progress: the thin bar under the header fills as you read the article */
+    function initProgress() {
+        var bar = document.querySelector('.ce-progress-bar');
+        var article = document.querySelector('.ce-content');
+        if (!bar || !article) return;
+        var ticking = false;
+
+        function update() {
+            var rect = article.getBoundingClientRect();
+            var total = rect.height - window.innerHeight;
+            var done = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 1;
+            bar.style.transform = 'scaleX(' + done + ')';
+            ticking = false;
+        }
+        window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+        }, {passive: true});
+        update();
+    }
+
+    /* 4. Code blocks: a header with the language and a Copy button, line numbers, and
+       "double-quoted strings" in the second code tone. Built with DOM nodes (no innerHTML),
+       so code text is never interpreted as HTML. */
+    function initCode() {
+        document.querySelectorAll('.ce-content pre').forEach(function (pre) {
+            var code = pre.querySelector('code');
+            if (!code || pre.closest('.ce-code')) return;
+
+            var text = code.textContent.replace(/\n$/, '');
+            var lang = (code.className.match(/language-([\w+-]+)/) || [])[1];
+
+            // Rebuild the code as one element per line: <span class="ce-line">…</span>
+            code.textContent = '';
+            text.split('\n').forEach(function (line) {
+                var row = document.createElement('span');
+                row.className = 'ce-line';
+                line.split(/("(?:[^"\\\n]|\\.)*")/).forEach(function (part, i) {
+                    if (!part) return;
+                    if (i % 2 === 1) { // odd parts are the quoted strings
+                        var str = document.createElement('span');
+                        str.className = 'ce-str';
+                        str.textContent = part;
+                        row.appendChild(str);
+                    } else {
+                        row.appendChild(document.createTextNode(part));
+                    }
+                });
+                code.appendChild(row); // block-level lines: selecting and copying still gives one line each
+            });
+
+            // Wrapper with a header: language label on the left, Copy on the right
+            var wrap = document.createElement('div');
+            wrap.className = 'ce-code';
+            var head = document.createElement('div');
+            head.className = 'ce-code-head';
+            var label = document.createElement('span');
+            label.textContent = lang ? lang.toUpperCase() : 'CODE';
+            var copy = document.createElement('button');
+            copy.type = 'button';
+            copy.className = 'ce-code-copy';
+            copy.textContent = 'Copy';
+            copy.addEventListener('click', function () {
+                if (!navigator.clipboard) return;
+                navigator.clipboard.writeText(text).then(function () {
+                    copy.textContent = 'Copied';
+                    setTimeout(function () { copy.textContent = 'Copy'; }, 2000);
+                });
+            });
+            head.appendChild(label);
+            head.appendChild(copy);
+            pre.parentNode.insertBefore(wrap, pre);
+            wrap.appendChild(head);
+            wrap.appendChild(pre);
+        });
+    }
+
+    /* 5. Series list: mark the post you're on */
+    function initSeries() {
+        document.querySelectorAll('.ce-series-posts a').forEach(function (link) {
+            if (link.pathname === window.location.pathname) link.setAttribute('aria-current', 'page');
+        });
+    }
+
+    /* 6. "/" opens Ghost's search, unless you are typing in a field */
+    function initSearchKey() {
+        var button = document.querySelector('.ce-search');
+        if (!button) return;
+        document.addEventListener('keydown', function (event) {
+            if (event.key !== '/' || event.metaKey || event.ctrlKey || event.altKey) return;
+            var el = document.activeElement;
+            if (el && (el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName))) return;
+            event.preventDefault();
+            button.click();
+        });
     }
 
     function init() {
         initThemeToggle();
-        initSidePanel();
-        initCopyLinks();
         initToc();
+        initProgress();
+        initCode();
+        initSeries();
+        initSearchKey();
     }
 
     if (document.readyState === 'loading') {

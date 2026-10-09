@@ -1,0 +1,16 @@
+{{!-- One post in a list (homepage, older posts, author pages):
+      "SERIES / 13 MIN READ / 8 OCT 2026", then the title and the excerpt.
+      Expects a post as its context. --}}
+<article class="ce-row">
+    <p class="ce-meta">
+        {{#if primary_tag}}<a class="ce-meta-strong" href="{{primary_tag.url}}">{{primary_tag.name}}</a><span aria-hidden="true">/</span>{{/if}}
+        {{#if reading_time}}<span>{{reading_time minute="1 min read" minutes="% min read"}}</span><span aria-hidden="true">/</span>{{/if}}
+        <time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time>
+    </p>
+    <h2 class="ce-row-title"><a href="{{url}}">{{title}}</a></h2>
+    {{#if custom_excerpt}}
+        <p class="ce-row-excerpt">{{custom_excerpt}}</p>
+    {{else if excerpt}}
+        <p class="ce-row-excerpt">{{excerpt words="32"}}</p>
+    {{/if}}
+</article>

@@ -1,6 +1,19 @@
 {{!< default}}
-{{!-- The tag above means: insert everything in this file into the body of the default.hbs template --}}
+{{!-- All posts, page 2 onwards (the homepage is page 1): the same list as the homepage --}}
 
-<main class="gh-main">
-    {{> "components/post-list" feed="index" postFeedStyle=@custom.post_feed_style showTitle=true showSidebar=@custom.show_publication_info_sidebar}}
+<main class="ce-main">
+    <div class="ce-list-page">
+        <header class="ce-list-header">
+            <p class="ce-label">Archive{{#if pagination.page}} &middot; page {{pagination.page}}{{/if}}</p>
+            <h1 class="ce-article-title">All posts</h1>
+        </header>
+
+        <div class="ce-rows">
+            {{#foreach posts}}
+                {{> "ce/post-row"}}
+            {{/foreach}}
+        </div>
+
+        {{> "ce/pagination"}}
+    </div>
 </main>
